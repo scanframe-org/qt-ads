@@ -1,3 +1,7 @@
+/.junie
+/cmake/lib/*
+/cmake-build*
+lib/*
 *.pro.user*
 /build
 *.o

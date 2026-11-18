@@ -1736,7 +1736,7 @@ struct EventHelper
 
     QMouseEvent* _mouseEvent;
 
-    const QPointF& position() const
+    [[nodiscard]] QPointF position() const
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         return _mouseEvent->position();
@@ -1745,7 +1745,7 @@ struct EventHelper
 #endif
     }
 
-    const QPointF& globalPosition() const
+    [[nodiscard]] QPointF globalPosition() const
     {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         return _mouseEvent->globalPosition();
