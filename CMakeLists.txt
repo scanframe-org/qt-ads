@@ -25,11 +25,28 @@ list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 # Project
 # ---------------------------------------------------------------------------
 
+if (NOT DEFINED USE_QT_QUICK)
+    set(USE_QT_QUICK ON)
+endif ()
+
+# Check if the file exists and include it.
+set(SF_INCLUDE_FILE "${CMAKE_CURRENT_LIST_DIR}/cmake/lib/SfProjectInclude.cmake")
+if (EXISTS "${SF_INCLUDE_FILE}")
+	include("${SF_INCLUDE_FILE}")
+else ()
+	set(SF_GIT_TAG_VERSION "5.1.1")
+endif ()
+
 project(
     QtADS
-    VERSION 5.1.1
+    VERSION "${SF_GIT_TAG_VERSION}"
     LANGUAGES CXX
 )
+
+# Check if the file exists and include it again.
+if (EXISTS "${SF_INCLUDE_FILE}")
+	include("${SF_INCLUDE_FILE}")
+endif ()
 
 # Determine whether QtADS is being built as the top-level project.
 #
@@ -104,7 +121,16 @@ add_subdirectory(src)
 # Examples
 # ---------------------------------------------------------------------------
 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
 if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
+    if(USE_QT_QUICK)
+        add_subdirectory(examples)
+    endif()
     add_subdirectory(demo)
 endif()
+
+# Check if the file exists and include it again.
+if (EXISTS "${SF_INCLUDE_FILE}")
+	include("${SF_INCLUDE_FILE}")
+endif ()

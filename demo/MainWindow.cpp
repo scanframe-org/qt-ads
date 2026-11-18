@@ -62,7 +62,9 @@
 #include <QPointer>
 #include <QMap>
 #include <QElapsedTimer>
+#ifdef USE_QT_QUICK
 #include <QQuickWidget>
+#endif
 
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
@@ -416,10 +418,14 @@ struct MainWindowPrivate
 	 */
 	ads::CDockWidget *createQQuickWidget()
 	{
+#ifdef USE_QT_QUICK
 		QQuickWidget *widget = new QQuickWidget();
 		ads::CDockWidget *dockWidget = DockManager->createDockWidget("Quick");
 		dockWidget->setWidget(widget);
 		return dockWidget;
+#else
+    return nullptr;
+#endif
 	}
 
 
@@ -565,20 +571,22 @@ void MainWindowPrivate::createContent()
 #endif
 #endif
 
-	for (auto DockWidget : DockManager->dockWidgetsMap())
+	for (auto dw : DockManager->dockWidgetsMap())
 	{
-		_this->connect(DockWidget, SIGNAL(viewToggled(bool)), SLOT(onViewToggled(bool)));
-		_this->connect(DockWidget, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
+		_this->connect(dw, SIGNAL(viewToggled(bool)), SLOT(onViewToggled(bool)));
+		_this->connect(dw, SIGNAL(visibilityChanged(bool)), SLOT(onViewVisibilityChanged(bool)));
 	}
 
 	// Create image viewer
-	DockWidget = createImageViewer();
-	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+	if (auto dw = createImageViewer())
+	    DockManager->addDockWidget(ads::LeftDockWidgetArea, dw);
 
     // Create quick widget
-	DockWidget = createQQuickWidget();
-	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, true);
-	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+	if (auto dw = createQQuickWidget())
+	{
+	    DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, true);
+	    DockManager->addDockWidget(ads::LeftDockWidgetArea, dw);
+	}
 }
 
 

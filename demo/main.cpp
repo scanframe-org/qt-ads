@@ -3,9 +3,15 @@
 #include <QFile>
 #include <QApplication>
 #include <QDebug>
-
+#include <QThreadPool>
 #include <memory>
 
+// MinGW GCC < 13.4 detection for thread_local destructor ordering bug GCC #116159"
+#if (defined(__MINGW32__) || defined(__MINGW64__)) && ((__GNUC__ < 13) || (__GNUC__ == 13 && __GNUC_MINOR__ < 4))
+    #define IS_MINGW_THREADLOCAL_BUGGY 1
+#else
+    #define IS_MINGW_THREADLOCAL_BUGGY 0
+#endif
 
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -61,5 +67,11 @@ int main(int argc, char *argv[])
 		a.setStyleSheet(StyleSheetStream.readAll());
 		StyleSheetFile.close();
 	}
-	return a.exec();
+    // Fix for hanging Qt threads in Wine since 6.9.1
+    const auto exit_code = QApplication::exec();
+#if IS_MINGW_THREADLOCAL_BUGGY
+    QThreadPool::globalInstance()->waitForDone();
+    exit(exit_code);
+#endif
+    return exit_code;
 }

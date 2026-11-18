@@ -6,7 +6,11 @@ if(QtADS_IS_TOP_LEVEL)
 endif()
 
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Core Gui Widgets Quick QuickWidgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Core Gui Widgets REQUIRED)
+if (USE_QT_QUICK)
+    find_package(Qt${QT_VERSION_MAJOR} 5.5 COMPONENTS Quick QuickWidgets REQUIRED)
+endif()
+
 if(WIN32 AND QT_VERSION_MAJOR LESS 6)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS AxContainer REQUIRED)
 endif()
@@ -19,15 +23,26 @@ set(ads_demo_SRCS
     StatusDialog.ui
     ImageViewer.cpp
     RenderWidget.cpp
-	demo.qrc
+    demo.qrc
 )
 add_executable(AdvancedDockingSystemDemo WIN32 ${ads_demo_SRCS})
 target_include_directories(AdvancedDockingSystemDemo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src")
-target_link_libraries(AdvancedDockingSystemDemo PUBLIC Qt${QT_VERSION_MAJOR}::Core 
-                                                       Qt${QT_VERSION_MAJOR}::Gui 
-                                                       Qt${QT_VERSION_MAJOR}::Widgets
-                                                       Qt${QT_VERSION_MAJOR}::Quick
-                                                       Qt${QT_VERSION_MAJOR}::QuickWidgets)
+target_link_libraries(AdvancedDockingSystemDemo
+    PUBLIC
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+)
+
+if (USE_QT_QUICK)
+target_link_libraries(AdvancedDockingSystemDemo
+    PUBLIC
+    Qt${QT_VERSION_MAJOR}::Quick
+    Qt${QT_VERSION_MAJOR}::QuickWidgets
+)
+target_compile_definitions(AdvancedDockingSystemDemo PRIVATE USE_QT_QUICK)
+endif()
+
 if(WIN32 AND QT_VERSION_MAJOR LESS 6)
     target_link_libraries(AdvancedDockingSystemDemo PUBLIC Qt${QT_VERSION_MAJOR}::AxContainer)
 endif()
