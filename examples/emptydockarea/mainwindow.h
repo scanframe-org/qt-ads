@@ -1,43 +1,48 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include <QComboBox>
+#include <QMainWindow>
 #include <QWidgetAction>
 
-#include "DockManager.h"
-#include "DockAreaWidget.h"
-#include "DockWidget.h"
+#include "CDockAreaWidget.h"
+#include "CDockManager.h"
+#include "CDockWidget.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class CMainWindow; }
+
+namespace Ui
+{
+class CMainWindow;
+}
+
 QT_END_NAMESPACE
 
 class CMainWindow : public QMainWindow
 {
-    Q_OBJECT
+		Q_OBJECT
 
-public:
-    CMainWindow(QWidget *parent = nullptr);
-    ~CMainWindow();
+	public:
+		CMainWindow(QWidget* parent = nullptr);
+		~CMainWindow();
 
-protected:
-	virtual void closeEvent(QCloseEvent* event) override;
+	protected:
+		virtual void closeEvent(QCloseEvent* event) override;
 
-private:
-	QAction* SavePerspectiveAction = nullptr;
-	QWidgetAction* PerspectiveListAction = nullptr;
-	QComboBox* PerspectiveComboBox = nullptr;
+	private:
+		QAction* SavePerspectiveAction = nullptr;
+		QWidgetAction* PerspectiveListAction = nullptr;
+		QComboBox* PerspectiveComboBox = nullptr;
 
-    Ui::CMainWindow *ui;
+		Ui::CMainWindow* ui;
 
-    ads::CDockManager* DockManager;
-    ads::CDockAreaWidget* StatusDockArea;
-    ads::CDockWidget* TimelineDockWidget;
+		ads::CDockManager* DockManager;
+		ads::CDockAreaWidget* StatusDockArea;
+		ads::CDockWidget* TimelineDockWidget;
 
-    void createPerspectiveUi();
+		void createPerspectiveUi();
 
-private slots:
-	void savePerspective();
+	private slots:
+		void savePerspective();
 };
-#endif // MAINWINDOW_H
+#endif// MAINWINDOW_H

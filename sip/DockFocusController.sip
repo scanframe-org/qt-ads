@@ -11,7 +11,7 @@ namespace ads
 class CDockFocusController : QObject
 {
     %TypeHeaderCode
-    #include <DockFocusController.h>
+    #include <CDockFocusController.h>
     %End
     
 public:

@@ -8,7 +8,7 @@ namespace ads
 class CSpacerWidget : QWidget
 {
     %TypeHeaderCode
-    #include <DockAreaTitleBar_p.h>
+    #include <CSpacerWidget.h>
     %End
 
 public:

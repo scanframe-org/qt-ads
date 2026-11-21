@@ -10,7 +10,7 @@ class CAutoHideSideBar : QScrollArea
 {
 
     %TypeHeaderCode
-    #include <AutoHideSideBar.h>
+    #include <CAutoHideSideBar.h>
     %End
 
 protected:

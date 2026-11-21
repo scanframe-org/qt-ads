@@ -12,7 +12,10 @@
 //============================================================================
 #include <QDialog>
 
-namespace ads {class CDockManager;}
+namespace ads
+{
+class CDockManager;
+}
 struct StatusDialogPrivate;
 
 /**
@@ -20,28 +23,28 @@ struct StatusDialogPrivate;
  */
 class CStatusDialog : public QDialog
 {
-	Q_OBJECT
-private:
-	StatusDialogPrivate* d; ///< private data (pimpl)
-    friend struct StatusDialogPrivate;
+		Q_OBJECT
+	private:
+		StatusDialogPrivate* d;///< private data (pimpl)
+		friend struct StatusDialogPrivate;
 
-private slots:
-	void on_dockWidgetsComboBox_currentIndexChanged(int index);
+	private slots:
+		void on_dockWidgetsComboBox_currentIndexChanged(int index);
 
-protected:
-public:
-	using Super = QDialog;
-	/**
-	 * Default Constructor
-	 */
-	CStatusDialog(ads::CDockManager* parent);
+	protected:
+	public:
+		using Super = QDialog;
+		/**
+		 * Default Constructor
+		 */
+		CStatusDialog(ads::CDockManager* parent);
 
-	/**
-	 * Virtual Destructor
-	 */
-	virtual ~CStatusDialog();
-}; // class StatusDialog
+		/**
+		 * Virtual Destructor
+		 */
+		virtual ~CStatusDialog();
+};// class StatusDialog
 
- // namespace namespace_name
+// namespace namespace_name
 //-----------------------------------------------------------------------------
-#endif // StatusDialogH
+#endif// StatusDialogH

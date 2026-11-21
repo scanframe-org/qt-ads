@@ -1,32 +1,32 @@
 #include "../../examples/hideshow/MainWindow.h"
 
-#include "ui_MainWindow.h"
-
 #include <QLabel>
 #include <QPushButton>
 
+#include "ui_MainWindow.h"
+
 using namespace ads;
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget* parent)
+	: QMainWindow(parent)
+	, ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
-    ui->centralWidget->setLayout( m_layout = new QStackedLayout() );
+	ui->centralWidget->setLayout(m_layout = new QStackedLayout());
 
-    m_welcomeWidget = new QWidget(this);
-    auto welcomeLayout = new QVBoxLayout(m_welcomeWidget);
-    welcomeLayout->addStretch();
-    QPushButton* openButton = new QPushButton("Open project");
-    welcomeLayout->addWidget( openButton );
-    welcomeLayout->addStretch();
+	m_welcomeWidget = new QWidget(this);
+	auto welcomeLayout = new QVBoxLayout(m_welcomeWidget);
+	welcomeLayout->addStretch();
+	QPushButton* openButton = new QPushButton("Open project");
+	welcomeLayout->addWidget(openButton);
+	welcomeLayout->addStretch();
 
-    connect( openButton, SIGNAL(clicked()), this, SLOT(openProject()) );
+	connect(openButton, SIGNAL(clicked()), this, SLOT(openProject()));
 
-    m_DockManager = new ads::CDockManager(ui->centralWidget);
+	m_DockManager = new ads::CDockManager(ui->centralWidget);
 
-    // Create example content label - this can be any application specific
+	// Create example content label - this can be any application specific
 	// widget
 	QLabel* l = new QLabel();
 	l->setWordWrap(true);
@@ -35,46 +35,45 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Create a dock widget with the title Label 1 and set the created label
 	// as the dock widget content
-    ads::CDockWidget* DockWidget = m_DockManager->createDockWidget("Label 1");
+	ads::CDockWidget* DockWidget = m_DockManager->createDockWidget("Label 1");
 	DockWidget->setWidget(l);
 
 	// Add the toggleViewAction of the dock widget to the menu to give
 	// the user the possibility to show the dock widget if it has been closed
 	ui->menuView->addAction(DockWidget->toggleViewAction());
 
-    connect( ui->actionOpen, SIGNAL(triggered()), this, SLOT(openProject()) );
-    connect( ui->actionClose, SIGNAL(triggered()), this, SLOT(closeProject()) );
+	connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openProject()));
+	connect(ui->actionClose, SIGNAL(triggered()), this, SLOT(closeProject()));
 
 	// Add the dock widget to the top dock widget area
 	m_DockManager->addDockWidget(ads::TopDockWidgetArea, DockWidget);
 
-    ui->centralWidget->layout()->addWidget( m_welcomeWidget );
-    ui->centralWidget->layout()->addWidget( m_DockManager );
+	ui->centralWidget->layout()->addWidget(m_welcomeWidget);
+	ui->centralWidget->layout()->addWidget(m_DockManager);
 
-    closeProject();
+	closeProject();
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+	delete ui;
 }
 
 void MainWindow::openProject()
 {
-    ui->actionOpen->setEnabled(false);
-    ui->actionClose->setEnabled(true);
-    ui->menuView->setEnabled(true);
+	ui->actionOpen->setEnabled(false);
+	ui->actionClose->setEnabled(true);
+	ui->menuView->setEnabled(true);
 
-    m_layout->setCurrentWidget( m_DockManager );
+	m_layout->setCurrentWidget(m_DockManager);
 }
 
 void MainWindow::closeProject()
 {
-    ui->actionOpen->setEnabled(true);
-    ui->actionClose->setEnabled(false);
-    ui->menuView->setEnabled(false);
+	ui->actionOpen->setEnabled(true);
+	ui->actionClose->setEnabled(false);
+	ui->menuView->setEnabled(false);
 
-    m_DockManager->hideManagerAndFloatingWidgets();
-    m_layout->setCurrentWidget( m_welcomeWidget );
+	m_DockManager->hideManagerAndFloatingWidgets();
+	m_layout->setCurrentWidget(m_welcomeWidget);
 }
-

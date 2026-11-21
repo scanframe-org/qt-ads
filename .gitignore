@@ -1,5 +1,5 @@
 /.junie
-/cmake/lib/*
+/cmake/lib
 /cmake-build*
 lib/*
 /user.ini

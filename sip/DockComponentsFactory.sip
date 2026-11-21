@@ -7,7 +7,7 @@ class CDockComponentsFactory
 {
 
     %TypeHeaderCode
-    #include <DockComponentsFactory.h>
+    #include <CDockComponentsFactory.h>
     %End
 
 public:

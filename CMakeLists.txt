@@ -9,9 +9,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Enable the MSVC runtime library selection abstraction introduced with
 # CMake 3.15. This allows CMAKE_MSVC_RUNTIME_LIBRARY and the
 # MSVC_RUNTIME_LIBRARY target property to be used consistently.
-if(POLICY CMP0091)
-    cmake_policy(SET CMP0091 NEW)
-endif()
+if (POLICY CMP0091)
+	cmake_policy(SET CMP0091 NEW)
+endif ()
 
 # ---------------------------------------------------------------------------
 # CMake modules
@@ -26,7 +26,7 @@ list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 # ---------------------------------------------------------------------------
 
 if (NOT DEFINED USE_QT_QUICK)
-    set(USE_QT_QUICK ON)
+	set(USE_QT_QUICK ON)
 endif ()
 
 # Check if the file exists and include it.
@@ -37,10 +37,13 @@ else ()
 	set(SF_GIT_TAG_VERSION "5.1.1")
 endif ()
 
+# Start the top level project.
 project(
-    QtADS
-    VERSION "${SF_GIT_TAG_VERSION}"
-    LANGUAGES CXX
+	QtADS
+	VERSION "${SF_GIT_TAG_VERSION}"
+	DESCRIPTION "Advanced Docking System for Qt"
+	HOMEPAGE_URL "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System"
+	LANGUAGES CXX
 )
 
 # Check if the file exists and include it again.
@@ -52,15 +55,15 @@ endif ()
 #
 # PROJECT_IS_TOP_LEVEL was introduced with CMake 3.21. For older CMake
 # versions, determine the state manually.
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.21)
-    set(QtADS_IS_TOP_LEVEL "${PROJECT_IS_TOP_LEVEL}")
-else()
-    if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-        set(QtADS_IS_TOP_LEVEL TRUE)
-    else()
-        set(QtADS_IS_TOP_LEVEL FALSE)
-    endif()
-endif()
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.21)
+	set(QtADS_IS_TOP_LEVEL "${PROJECT_IS_TOP_LEVEL}")
+else ()
+	if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+		set(QtADS_IS_TOP_LEVEL TRUE)
+	else ()
+		set(QtADS_IS_TOP_LEVEL FALSE)
+	endif ()
+endif ()
 
 # ---------------------------------------------------------------------------
 # Build options
@@ -85,42 +88,43 @@ option(BUILD_EXAMPLES "Build the examples" ON)
 #
 # ADS_PLATFORM_DIR may be specified by the caller to override this
 # automatically detected value.
-if(ADS_PLATFORM_DIR)
-    set(ads_PlatformDir "${ADS_PLATFORM_DIR}")
-elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    set(ads_PlatformDir "x86")
-else()
-    set(ads_PlatformDir "x64")
-endif()
+if (ADS_PLATFORM_DIR)
+	set(ads_PlatformDir "${ADS_PLATFORM_DIR}")
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+	set(ads_PlatformDir "x86")
+else ()
+	set(ads_PlatformDir "x64")
+endif ()
 
 # ---------------------------------------------------------------------------
 # CMake policies
 # ---------------------------------------------------------------------------
 
-if(QtADS_IS_TOP_LEVEL)
-    # Enable folder organization by default for generators supporting it.
-    # CMP0143 was introduced with CMake 3.26.
-    if(POLICY CMP0143)
-        cmake_policy(SET CMP0143 NEW)
-    endif()
+if (QtADS_IS_TOP_LEVEL)
+	# Enable folder organization by default for generators supporting it.
+	# CMP0143 was introduced with CMake 3.26.
+	if (POLICY CMP0143)
+		cmake_policy(SET CMP0143 NEW)
+	endif ()
 
-    # Enable parallel compilation when building with MSVC.
-    if(MSVC)
-        add_compile_options(/MP)
-    endif()
-endif()
+	# Enable parallel compilation when building with MSVC.
+	if (MSVC)
+		add_compile_options(/MP)
+	endif ()
+endif ()
 
 # ---------------------------------------------------------------------------
 # Qt and MSVC runtime
 # ---------------------------------------------------------------------------
 
 find_package(
-    QT
-    NAMES Qt6 Qt5
-    COMPONENTS Core
-    REQUIRED
-)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+	QT NAMES Qt6 Qt5
+	COMPONENTS Core
+	REQUIRED)
+find_package(
+	Qt${QT_VERSION_MAJOR}
+	COMPONENTS Core
+	REQUIRED)
 
 include(QtMsvcRuntime)
 ads_set_msvc_runtime_from_qt(Qt${QT_VERSION_MAJOR}::Core)
@@ -135,12 +139,10 @@ add_subdirectory(src)
 # Examples
 # ---------------------------------------------------------------------------
 
-if(BUILD_EXAMPLES)
-    if(USE_QT_QUICK)
-        add_subdirectory(examples)
-    endif()
-    add_subdirectory(demo)
-endif()
+if (BUILD_EXAMPLES)
+	add_subdirectory(examples)
+	add_subdirectory(demo)
+endif ()
 
 # Check if the file exists and include it again.
 if (EXISTS "${SF_INCLUDE_FILE}")

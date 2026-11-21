@@ -5,29 +5,26 @@
 /// \brief  Implementation of CRenderWidget
 //============================================================================
 
-
 //============================================================================
 //                                   INCLUDES
 //============================================================================
 #include "RenderWidget.h"
 
 #include <QPainter>
+
 #include <math.h>
 
-
 //===========================================================================
-CRenderWidget::CRenderWidget(QWidget* Parent) :
-	QWidget(Parent), m_ScaleFactor(1)
+CRenderWidget::CRenderWidget(QWidget* Parent)
+	: QWidget(Parent)
+	, m_ScaleFactor(1)
 {
 	this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	this->setCursor(Qt::OpenHandCursor);
 }
 
 //===========================================================================
-CRenderWidget::~CRenderWidget()
-{
-
-}
+CRenderWidget::~CRenderWidget() {}
 
 //===========================================================================
 void CRenderWidget::showImage(const QImage& Image)
@@ -98,8 +95,7 @@ void CRenderWidget::scaleToSize(const QSize& TargetSize)
 		return;
 	}
 	double ScaleFactorH = (double) TargetSize.width() / m_Image.size().width();
-	double ScaleFactorV = (double) TargetSize.height()
-	    / m_Image.size().height();
+	double ScaleFactorV = (double) TargetSize.height() / m_Image.size().height();
 	m_ScaleFactor = (ScaleFactorH < ScaleFactorV) ? ScaleFactorH : ScaleFactorV;
 	this->adjustWidgetSize();
 }

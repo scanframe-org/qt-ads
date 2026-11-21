@@ -9,7 +9,7 @@ namespace ads
 class CPushButton : QPushButton
 {
     %TypeHeaderCode
-    #include <PushButton.h>
+    #include <CPushButton.h>
     %End
     
 public:

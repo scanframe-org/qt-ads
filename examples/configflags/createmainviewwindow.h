@@ -9,23 +9,22 @@
 namespace Ui
 {
 class CreateMainViewWindow;
-}  // namespace Ui
+}// namespace Ui
 
 class CreateMainViewWindow : public QMainWindow
 {
-   Q_OBJECT
+		Q_OBJECT
 
-public:
-   CreateMainViewWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = { });
-   virtual ~CreateMainViewWindow();
+	public:
+		CreateMainViewWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = {});
+		virtual ~CreateMainViewWindow();
 
-private:
-   void SetupConfigFlagsTreeWidget();
-   void SetupAutoHideFlagsListTreeWidget();
-   void SetupCreateMainWindowPushButton();
+	private:
+		void SetupConfigFlagsTreeWidget();
+		void SetupAutoHideFlagsListTreeWidget();
+		void SetupCreateMainWindowPushButton();
 
-   std::unique_ptr< Ui::CreateMainViewWindow > ui;
-
+		std::unique_ptr<Ui::CreateMainViewWindow> ui;
 };
 
-#endif // CREATEMAINVIEWWINDOW_H
+#endif// CREATEMAINVIEWWINDOW_H

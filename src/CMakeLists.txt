@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(
-    QtAdvancedDockingSystem
-    VERSION ${QtADS_VERSION}
-    LANGUAGES CXX
-)
+project(QtAdvancedDockingSystem VERSION ${QtADS_VERSION} LANGUAGES CXX)
 
 # ---------------------------------------------------------------------------
 # CMake modules
@@ -25,44 +21,24 @@ include(Versioning)
 # If QT_VERSION_MAJOR has already been specified by the parent project,
 # restrict Qt discovery to that major version. Otherwise, prefer Qt 6 and
 # fall back to Qt 5.
-if(DEFINED QT_VERSION_MAJOR AND QT_VERSION_MAJOR)
-    find_package(
-        QT
-        NAMES Qt${QT_VERSION_MAJOR}
-        COMPONENTS Core
-        REQUIRED
-    )
-else()
-    find_package(
-        QT
-        NAMES Qt6 Qt5
-        COMPONENTS Core
-        REQUIRED
-    )
-endif()
+if (DEFINED QT_VERSION_MAJOR AND QT_VERSION_MAJOR)
+	find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+else ()
+	find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+endif ()
 
 message(STATUS "ADS: Solution configured to use Qt version ${QT_VERSION_MAJOR}")
 
 # Qt modules required by ADS.
-set(ads_DEP_LIBS
-    Core
-    Gui
-    Widgets
-)
+set(ads_DEP_LIBS Core Gui Widgets)
 
 # Qt 6.9+ provides the required private GUI headers through the GuiPrivate
 # component. Request it explicitly on supported Unix platforms.
-if(UNIX AND NOT APPLE
-   AND QT_VERSION_MAJOR STREQUAL "6"
-   AND QT_VERSION_MINOR GREATER_EQUAL 9)
-    list(APPEND ads_DEP_LIBS GuiPrivate)
-endif()
+if (UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6" AND QT_VERSION_MINOR GREATER_EQUAL 9)
+	list(APPEND ads_DEP_LIBS GuiPrivate)
+endif ()
 
-find_package(
-    Qt${QT_VERSION_MAJOR}
-    COMPONENTS ${ads_DEP_LIBS}
-    REQUIRED
-)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS ${ads_DEP_LIBS} REQUIRED)
 
 # ---------------------------------------------------------------------------
 # Version information
@@ -76,70 +52,92 @@ generate_ads_version_header()
 # ---------------------------------------------------------------------------
 
 set(ads_SRCS
-    ads_globals.cpp
-    DockAreaTabBar.cpp
-    DockAreaTitleBar.cpp
-    DockAreaWidget.cpp
-    DockContainerWidget.cpp
-    DockManager.cpp
-    DockOverlay.cpp
-    DockSplitter.cpp
-    DockWidget.cpp
-    DockWidgetTab.cpp
-    DockingStateReader.cpp
-    DockFocusController.cpp
-    ElidingLabel.cpp
-    FloatingDockContainer.cpp
-    FloatingDragPreview.cpp
-    IconProvider.cpp
-    DockComponentsFactory.cpp
-    AutoHideSideBar.cpp
-    AutoHideTab.cpp
-    AutoHideDockContainer.cpp
-    PushButton.cpp
-    ResizeHandle.cpp
-    ads.qrc
+		ads_globals.cpp
+		CDockAreaTabBar.cpp
+		CDockAreaTitleBar.cpp
+		CTitleBarButton.cpp
+		CSpacerWidget.cpp
+		CDockAreaWidget.cpp
+		CDockContainerWidget.cpp
+		CDockManager.cpp
+		CDockOverlay.cpp
+		CDockOverlayCross.cpp
+		CDockSplitter.cpp
+		CDockWidget.cpp
+		CDockWidgetTab.cpp
+		CDockingStateReader.cpp
+		CDockFocusController.cpp
+		CElidingLabel.cpp
+		CFloatingDockContainer.cpp
+		CFloatingDragPreview.cpp
+		CIconProvider.cpp
+		CDockComponentsFactory.cpp
+		CAutoHideSideBar.cpp
+		CAutoHideTab.cpp
+		CAutoHideDockContainer.cpp
+		CPushButton.cpp
+		CResizeHandle.cpp
+		ads.qrc
 )
 
 set(ads_HEADERS
-    ads_globals.h
-    DockAreaTabBar.h
-    DockAreaTitleBar.h
-    DockAreaTitleBar_p.h
-    DockAreaWidget.h
-    DockContainerWidget.h
-    DockManager.h
-    DockOverlay.h
-    DockSplitter.h
-    DockWidget.h
-    DockWidgetTab.h
-    DockingStateReader.h
-    DockFocusController.h
-    ElidingLabel.h
-    FloatingDockContainer.h
-    FloatingDragPreview.h
-    IconProvider.h
-    DockComponentsFactory.h
-    AutoHideSideBar.h
-    AutoHideTab.h
-    AutoHideDockContainer.h
-    PushButton.h
-    ResizeHandle.h
+		ads_globals.h
+		CDockAreaTabBar.h
+		CDockAreaTabBar_p.h
+		CDockAreaTitleBar.h
+		CTitleBarButton.h
+		CSpacerWidget.h
+		CDockAreaTitleBar_p.h
+		CDockAreaWidget.h
+		CDockAreaLayout.h
+		CDockAreaWidget_p.h
+		CDockContainerWidget.h
+		CDockContainerWidget_p.h
+		CDockManager.h
+		CDockManager_p.h
+		CDockOverlay.h
+		CDockOverlayCross.h
+		CDockOverlay_p.h
+		CDockOverlayCross_p.h
+		CDockSplitter.h
+		CDockSplitter_p.h
+		CDockWidget.h
+		CDockWidget_p.h
+		CDockWidgetTab.h
+		CDockWidgetTab_p.h
+		CDockingStateReader.h
+		CDockFocusController.h
+		CDockFocusController_p.h
+		CElidingLabel.h
+		CElidingLabel_p.h
+		CFloatingDockContainer.h
+		IFloatingWidget.h
+		CFloatingDockContainer_p.h
+		CFloatingDragPreview.h
+		CFloatingDragPreview_p.h
+		CIconProvider.h
+		CIconProvider_p.h
+		CDockComponentsFactory.h
+		CAutoHideSideBar.h
+		CAutoHideSideBar_p.h
+		CAutoHideTab.h
+		CAutoHideTab_p.h
+		CAutoHideDockContainer.h
+		CAutoHideDockContainer_p.h
+		CPushButton.h
+		CResizeHandle.h
+		CResizeHandle_p.h
 )
 
 # Linux and Windows use a custom floating-window title bar.
 # On Linux it replaces the native title bar for frameless windows.
 # On Windows it is used when running under Wine, where native window
 # borders do not work correctly.
-if(UNIX AND NOT APPLE OR WIN32)
-    list(PREPEND ads_SRCS
-        linux/FloatingWidgetTitleBar.cpp
-    )
+if (UNIX AND NOT APPLE OR WIN32)
+	list(PREPEND ads_SRCS linux/CFloatingWidgetTitleBar.cpp)
 
-    list(PREPEND ads_HEADERS
-        linux/FloatingWidgetTitleBar.h
-    )
-endif()
+	list(PREPEND ads_HEADERS linux/CFloatingWidgetTitleBar.h linux/CFloatingWidgetTitleBar_p.h)
+endif ()
 
 # ---------------------------------------------------------------------------
 # Library target
@@ -150,46 +148,27 @@ endif()
 set(library_name_base "qtadvanceddocking")
 set(library_name "${library_name_base}-qt${QT_VERSION_MAJOR}")
 
-if(BUILD_STATIC)
-    add_library(
-        ${library_name}
-        STATIC
-        ${ads_SRCS}
-        ${ads_HEADERS}
-    )
+if (BUILD_STATIC)
+	add_library(${library_name} STATIC ${ads_SRCS} ${ads_HEADERS})
 
-    # ADS_STATIC is part of the public usage requirements because consumers
-    # need to know that ADS is linked statically.
-    target_compile_definitions(
-        ${library_name}
-        PUBLIC ADS_STATIC
-    )
+	# ADS_STATIC is part of the public usage requirements because consumers
+	# need to know that ADS is linked statically.
+	target_compile_definitions(${library_name} PUBLIC ADS_STATIC)
 
-    # Keep static and shared library filenames distinguishable.
-    set_target_properties(
-        ${library_name}
-        PROPERTIES OUTPUT_NAME "${library_name}_static"
-    )
-else()
-    add_library(
-        ${library_name}
-        SHARED
-        ${ads_SRCS}
-        ${ads_HEADERS}
-    )
+	# Keep static and shared library filenames distinguishable.
+	set_target_properties(${library_name} PROPERTIES OUTPUT_NAME "${library_name}_static")
+else ()
+	add_library(${library_name} SHARED ${ads_SRCS} ${ads_HEADERS})
 
-    # ADS_SHARED_EXPORT enables symbol export while building the shared
-    # library itself. Consumers do not need this definition.
-    target_compile_definitions(
-        ${library_name}
-        PRIVATE ADS_SHARED_EXPORT
-    )
+	# ADS_SHARED_EXPORT enables symbol export while building the shared
+	# library itself. Consumers do not need this definition.
+	target_compile_definitions(${library_name} PRIVATE ADS_SHARED_EXPORT)
 
-    # Add Windows version information to the DLL.
-    if(WIN32)
-        add_windows_version_resources(${library_name})
-    endif()
-endif()
+	# Add Windows version information to the DLL.
+	if (WIN32)
+		add_windows_version_resources(${library_name})
+	endif ()
+endif ()
 
 # Provide namespaced aliases for use inside the build tree.
 #
@@ -204,51 +183,31 @@ add_library(ads::${library_name_base} ALIAS ${library_name})
 # ---------------------------------------------------------------------------
 
 # Tell MSVC that source and execution character sets use UTF-8.
-target_compile_options(
-    ${library_name}
-    PRIVATE
-        "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>"
-)
+target_compile_options(${library_name} PRIVATE "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 # Qt 5 builds require C++14, while Qt 6 builds require C++17.
-if(QT_VERSION_MAJOR STREQUAL "5")
-    set_target_properties(
-        ${library_name}
-        PROPERTIES
-            CXX_STANDARD 14
-            CXX_STANDARD_REQUIRED ON
-    )
-elseif(QT_VERSION_MAJOR STREQUAL "6")
-    set_target_properties(
-        ${library_name}
-        PROPERTIES
-            CXX_STANDARD 17
-            CXX_STANDARD_REQUIRED ON
-    )
-endif()
+if (QT_VERSION_MAJOR STREQUAL "5")
+	set_target_properties(${library_name} PROPERTIES CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON)
+elseif (QT_VERSION_MAJOR STREQUAL "6")
+	set_target_properties(${library_name} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+endif ()
 
 # Disable compiler-specific language extensions such as GNU C++ extensions.
-set_target_properties(
-    ${library_name}
-    PROPERTIES
-        CXX_EXTENSIONS OFF
-)
+set_target_properties(${library_name} PROPERTIES CXX_EXTENSIONS OFF)
 
 # ---------------------------------------------------------------------------
 # Include directories
 # ---------------------------------------------------------------------------
 
 target_include_directories(
-    ${library_name}
-    PUBLIC
-        # Public headers when ADS is used directly from the build tree.
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-
-        # Generated headers when ADS is used directly from the build tree.
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-
-        # Public headers after installation.
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${library_name}>
+	${library_name}
+	PUBLIC
+		# Public headers when ADS is used directly from the build tree.
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		# Generated headers when ADS is used directly from the build tree.
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+		# Public headers after installation.
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${library_name}>
 )
 
 # ---------------------------------------------------------------------------
@@ -259,85 +218,62 @@ target_include_directories(
 # an implementation detail of QtAdvancedDockingSystem and must not become
 # part of its public interface.
 # ---------------------------------------------------------------------------
-if(UNIX AND NOT APPLE
-   AND (QT_VERSION_MAJOR STREQUAL "5"
-        OR (QT_VERSION_MAJOR STREQUAL "6"
-            AND QT_VERSION_MINOR GREATER_EQUAL 9)))
-    target_include_directories(${library_name}
-        PRIVATE
-            ${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS}
-    )
-endif()
+if (UNIX AND NOT APPLE AND (QT_VERSION_MAJOR STREQUAL "5" OR (QT_VERSION_MAJOR STREQUAL "6" AND QT_VERSION_MINOR
+																																																GREATER_EQUAL 9))
+)
+	target_include_directories(${library_name} PRIVATE ${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
+endif ()
 
 # ---------------------------------------------------------------------------
 # Qt libraries
 # ---------------------------------------------------------------------------
 
 target_link_libraries(
-    ${library_name}
-    PUBLIC
-        Qt${QT_VERSION_MAJOR}::Core
-        Qt${QT_VERSION_MAJOR}::Gui
-        Qt${QT_VERSION_MAJOR}::Widgets
+	${library_name} PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 # ADS uses private Qt GUI APIs on Unix systems other than macOS,
 # specifically qpa/qplatformnativeinterface.h.
-if(UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6")
-    target_link_libraries(
-        ${library_name}
-        PRIVATE
-            Qt6::GuiPrivate
-    )
-endif()
+if (UNIX AND NOT APPLE AND QT_VERSION_MAJOR STREQUAL "6")
+	target_link_libraries(${library_name} PRIVATE Qt6::GuiPrivate)
+endif ()
 
 # ---------------------------------------------------------------------------
 # Platform-specific dependencies
 # ---------------------------------------------------------------------------
 
-if(UNIX AND NOT APPLE)
-    if(CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-        find_package(X11 REQUIRED)
+if (UNIX AND NOT APPLE)
+	if (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+		find_package(X11 REQUIRED)
 
-        target_link_libraries(
-            ${library_name}
-            PUBLIC X11::xcb
-        )
-    else()
-        target_link_libraries(
-            ${library_name}
-            PUBLIC xcb
-        )
-    endif()
-endif()
+		target_link_libraries(${library_name} PUBLIC X11::xcb)
+	else ()
+		target_link_libraries(${library_name} PUBLIC xcb)
+	endif ()
+endif ()
 
 # ---------------------------------------------------------------------------
 # Qt code generation and output configuration
 # ---------------------------------------------------------------------------
 
 set_target_properties(
-    ${library_name}
-    PROPERTIES
-        # Process QObject-based classes automatically with moc.
-        AUTOMOC ON
-
-        # Compile Qt resource files automatically.
-        AUTORCC ON
-
-        # Shared-library ABI version information.
-        VERSION ${QtADS_VERSION}
-        SOVERSION ${QtADS_VERSION_MAJOR}
-
-        # Name used when this target is exported.
-        EXPORT_NAME ${library_name}
-
-        # Append "d" to Debug library filenames.
-        DEBUG_POSTFIX "d"
-
-        # Keep generated binaries separated by platform.
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
+	${library_name}
+	PROPERTIES
+		# Process QObject-based classes automatically with moc.
+		AUTOMOC ON
+		# Compile Qt resource files automatically.
+		AUTORCC ON
+		# Shared-library ABI version information.
+		VERSION ${QtADS_VERSION}
+		SOVERSION ${QtADS_VERSION_MAJOR}
+		# Name used when this target is exported.
+		EXPORT_NAME ${library_name}
+		# Append "d" to Debug library filenames.
+		DEBUG_POSTFIX "d"
+		# Keep generated binaries separated by platform.
+		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
+		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
+		RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/bin"
 )
 
 # ---------------------------------------------------------------------------
@@ -350,9 +286,7 @@ include(CMakePackageConfigHelpers)
 #
 # Versions with the same major version are considered compatible.
 write_basic_package_version_file(
-    "${library_name}ConfigVersion.cmake"
-    VERSION ${QtADS_VERSION}
-    COMPATIBILITY SameMajorVersion
+	"${library_name}ConfigVersion.cmake" VERSION ${QtADS_VERSION} COMPATIBILITY SameMajorVersion
 )
 
 # ---------------------------------------------------------------------------
@@ -361,49 +295,36 @@ write_basic_package_version_file(
 
 # Install public ADS headers.
 install(
-    FILES
-        ${ads_HEADERS}
-        "${CMAKE_CURRENT_BINARY_DIR}/ads_version.h"
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${library_name}
-    COMPONENT headers
+	FILES ${ads_HEADERS} "${CMAKE_CURRENT_BINARY_DIR}/ads_version.h"
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${library_name} COMPONENT headers
 )
 
 # Install license files.
 install(
-    FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../gnu-lgpl-v2.1.md"
-    DESTINATION share/ads/license
-    COMPONENT license
+	FILES "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE" "${CMAKE_CURRENT_SOURCE_DIR}/../gnu-lgpl-v2.1.md"
+	DESTINATION share/ads/license COMPONENT license
 )
 
 # Install the ADS library and add it to the exported target set.
 install(
-    TARGETS ${library_name}
-    EXPORT adsTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	TARGETS ${library_name} EXPORT adsTargets RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 # Export the installed target as ads::<target>.
 install(
-    EXPORT adsTargets
-    FILE adsTargets.cmake
-    NAMESPACE ads::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
+	EXPORT adsTargets FILE adsTargets.cmake NAMESPACE ads:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
 )
 
 # Install the package configuration file using the Qt-major-specific
 # package name.
 install(
-    FILES qtadvanceddockingConfig.cmake
-    RENAME ${library_name}Config.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
+	FILES qtadvanceddockingConfig.cmake RENAME ${library_name}Config.cmake
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
 )
 
 # Install the generated package version file.
 install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/${library_name}ConfigVersion.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
+	FILES "${CMAKE_CURRENT_BINARY_DIR}/${library_name}ConfigVersion.cmake"
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${library_name}
 )

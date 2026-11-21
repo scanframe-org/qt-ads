@@ -9,7 +9,7 @@ class CIconProvider
 {
 
     %TypeHeaderCode
-    #include <IconProvider.h>
+    #include <CIconProvider.h>
     %End
 
 

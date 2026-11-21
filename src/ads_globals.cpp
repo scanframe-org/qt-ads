@@ -1,53 +1,48 @@
-/*******************************************************************************
-** Qt Advanced Docking System
-** Copyright (C) 2017 Uwe Kindler
-**
-** This library is free software; you can redistribute it and/or
-** modify it under the terms of the GNU Lesser General Public
-** License as published by the Free Software Foundation; either
-** version 2.1 of the License, or (at your option) any later version.
-**
-** This library is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public
-** License along with this library; If not, see <http://www.gnu.org/licenses/>.
-******************************************************************************/
+/*
+ * Qt Advanced Docking System
+ * Copyright (C) 2017 Uwe Kindler
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; If not, see <http://www.gnu.org/licenses/>.
+ */
 
+/// @file   ads_globals.cpp
+/// @author Uwe Kindler
+/// @date   24.02.2017
+/// @brief  Implementation of
 
-//============================================================================
-/// \file   ads_globals.cpp
-/// \author Uwe Kindler
-/// \date   24.02.2017
-/// \brief  Implementation of
-//============================================================================
-
-
-//============================================================================
-//                                   INCLUDES
-//============================================================================
-#include <QVariant>
-#include <QPainter>
-#include <QAbstractButton>
-#include <QStyle>
-#include <QGuiApplication>
-
-#include "DockSplitter.h"
-#include "DockManager.h"
-#include "IconProvider.h"
 #include "ads_globals.h"
 
+#include <QAbstractButton>
+#include <QGuiApplication>
+#include <QPainter>
+#include <QStyle>
+#include <QVariant>
+
+#include "CDockManager.h"
+#include "CDockSplitter.h"
+#include "CIconProvider.h"
+
 #ifdef Q_OS_WIN
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-#include <QSettings>
-#include <QFile>
-#include <QApplication>
-#include <qpa/qplatformnativeinterface.h>
+	#include <QApplication>
+	#include <QFile>
+	#include <QSettings>
+
+	#include <qpa/qplatformnativeinterface.h>
 #endif
 
 namespace ads
@@ -61,49 +56,43 @@ const int DockedWidgetDragStartEvent = QEvent::registerEventType();
 static QString _window_manager;
 static QHash<QString, xcb_atom_t> _xcb_atom_cache;
 
-
-//============================================================================
- bool is_platform_x11()
+bool is_platform_x11()
 {
 	return QGuiApplication::platformName() == QLatin1String("xcb");
 }
 
-
-//============================================================================
 xcb_connection_t* x11_connection()
 {
 	if (!qApp)
 		return nullptr;
-	QPlatformNativeInterface *native = qApp->platformNativeInterface();
+	QPlatformNativeInterface* native = qApp->platformNativeInterface();
 	if (!native)
 		return nullptr;
 
-	void *connection = native->nativeResourceForIntegration(QByteArray("connection"));
-	return reinterpret_cast<xcb_connection_t *>(connection);
+	void* connection = native->nativeResourceForIntegration(QByteArray("connection"));
+	return reinterpret_cast<xcb_connection_t*>(connection);
 }
 
-
-//============================================================================
-xcb_atom_t xcb_get_atom(const char *name)
+xcb_atom_t xcb_get_atom(const char* name)
 {
 	if (!is_platform_x11())
 	{
 		return XCB_ATOM_NONE;
 	}
 	auto key = QString(name);
-	if(_xcb_atom_cache.contains(key))
+	if (_xcb_atom_cache.contains(key))
 	{
 		return _xcb_atom_cache[key];
 	}
-	xcb_connection_t *connection = x11_connection();
+	xcb_connection_t* connection = x11_connection();
 	xcb_intern_atom_cookie_t request = xcb_intern_atom(connection, 1, strlen(name), name);
-	xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection, request, nullptr);
+	xcb_intern_atom_reply_t* reply = xcb_intern_atom_reply(connection, request, nullptr);
 	if (!reply)
 	{
 		return XCB_ATOM_NONE;
 	}
 	xcb_atom_t atom = reply->atom;
-	if(atom == XCB_ATOM_NONE)
+	if (atom == XCB_ATOM_NONE)
 	{
 		ADS_PRINT("Unknown Atom response from XServer: " << name);
 	}
@@ -115,9 +104,7 @@ xcb_atom_t xcb_get_atom(const char *name)
 	return atom;
 }
 
-
-//============================================================================
-void xcb_update_prop(bool set, WId window, const char *type, const char *prop, const char *prop2)
+void xcb_update_prop(bool set, WId window, const char* type, const char* prop, const char* prop2)
 {
 	auto connection = x11_connection();
 	xcb_atom_t type_atom = xcb_get_atom(type);
@@ -134,65 +121,59 @@ void xcb_update_prop(bool set, WId window, const char *type, const char *prop, c
 	event.data.data32[3] = 0;
 	event.data.data32[4] = 0;
 
-	xcb_send_event(connection, 0, window,
-				   XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_PROPERTY_CHANGE,
-				   (const char *)&event);
+	xcb_send_event(
+		connection, 0, window, XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_PROPERTY_CHANGE, (const char*) &event
+	);
 	xcb_flush(connection);
 }
 
-
-//============================================================================
-xcb_get_property_reply_t* _xcb_get_props(WId window, const char *type, unsigned int atom_type)
+xcb_get_property_reply_t* _xcb_get_props(WId window, const char* type, unsigned int atom_type)
 {
-    if (!is_platform_x11())
+	if (!is_platform_x11())
 	{
 		return nullptr;
 	}
-	xcb_connection_t *connection = x11_connection();
+	xcb_connection_t* connection = x11_connection();
 	xcb_atom_t type_atom = xcb_get_atom(type);
 	if (type_atom == XCB_ATOM_NONE)
 	{
 		return nullptr;
 	}
 	xcb_get_property_cookie_t request = xcb_get_property_unchecked(connection, 0, window, type_atom, atom_type, 0, 1024);
-	xcb_get_property_reply_t *reply = xcb_get_property_reply(connection, request, nullptr);
-	if(reply && reply->type != atom_type)
+	xcb_get_property_reply_t* reply = xcb_get_property_reply(connection, request, nullptr);
+	if (reply && reply->type != atom_type)
 	{
-		ADS_PRINT("ATOM TYPE MISMATCH (" << type <<"). Expected: " << atom_type << "  but got " << reply->type);
+		ADS_PRINT("ATOM TYPE MISMATCH (" << type << "). Expected: " << atom_type << "  but got " << reply->type);
 		free(reply);
 		return nullptr;
 	}
 	return reply;
 }
 
-
-//============================================================================
-template <typename T>
-void xcb_get_prop_list(WId window, const char *type, QVector<T> &ret, unsigned int atom_type)
+template<typename T>
+void xcb_get_prop_list(WId window, const char* type, QVector<T>& ret, unsigned int atom_type)
 {
-	xcb_get_property_reply_t *reply = _xcb_get_props(window, type, atom_type);
+	xcb_get_property_reply_t* reply = _xcb_get_props(window, type, atom_type);
 	if (reply && reply->format == 32 && reply->type == atom_type && reply->value_len > 0)
 	{
-		const xcb_atom_t *data = static_cast<const T *>(xcb_get_property_value(reply));
+		const xcb_atom_t* data = static_cast<const T*>(xcb_get_property_value(reply));
 		ret.resize(reply->value_len);
-		memcpy((void *)&ret.first(), (void *)data, reply->value_len * sizeof(T));
+		memcpy((void*) &ret.first(), (void*) data, reply->value_len * sizeof(T));
 	}
 	free(reply);
 }
 
-
-//============================================================================
-QString xcb_get_prop_string(WId window, const char *type)
+QString xcb_get_prop_string(WId window, const char* type)
 {
 	QString ret;
 	// try utf8 first
 	xcb_atom_t utf_atom = xcb_get_atom("UTF8_STRING");
-	if(utf_atom != XCB_ATOM_NONE)
+	if (utf_atom != XCB_ATOM_NONE)
 	{
-		xcb_get_property_reply_t *reply = _xcb_get_props(window, type, utf_atom);
+		xcb_get_property_reply_t* reply = _xcb_get_props(window, type, utf_atom);
 		if (reply && reply->format == 8 && reply->type == utf_atom)
 		{
-			const char *value = reinterpret_cast<const char *>(xcb_get_property_value(reply));
+			const char* value = reinterpret_cast<const char*>(xcb_get_property_value(reply));
 			ret = QString::fromUtf8(value, xcb_get_property_value_length(reply));
 			free(reply);
 			return ret;
@@ -200,25 +181,23 @@ QString xcb_get_prop_string(WId window, const char *type)
 		free(reply);
 	}
 	// Fall back to XCB_ATOM_STRING
-	xcb_get_property_reply_t *reply = _xcb_get_props(window, type, XCB_ATOM_STRING);
+	xcb_get_property_reply_t* reply = _xcb_get_props(window, type, XCB_ATOM_STRING);
 	if (reply && reply->format == 8 && reply->type == XCB_ATOM_STRING)
 	{
-		const char *value = reinterpret_cast<const char *>(xcb_get_property_value(reply));
+		const char* value = reinterpret_cast<const char*>(xcb_get_property_value(reply));
 		ret = QString::fromLatin1(value, xcb_get_property_value_length(reply));
 	}
 	free(reply);
 	return ret;
 }
 
-
-//============================================================================
-bool xcb_dump_props(WId window, const char *type)
+bool xcb_dump_props(WId window, const char* type)
 {
 	QVector<xcb_atom_t> atoms;
 	xcb_get_prop_list(window, type, atoms, XCB_ATOM_ATOM);
 	qDebug() << "\n\n!!!" << type << "  -  " << atoms.length();
-	xcb_connection_t *connection = x11_connection();
-	for (auto atom : atoms)
+	xcb_connection_t* connection = x11_connection();
+	for (auto atom: atoms)
 	{
 		auto foo = xcb_get_atom_name(connection, atom);
 		auto bar = xcb_get_atom_name_reply(connection, foo, nullptr);
@@ -228,11 +207,9 @@ bool xcb_dump_props(WId window, const char *type)
 	return true;
 }
 
-
-//============================================================================
-void xcb_add_prop(bool state, WId window, const char *type, const char *prop)
+void xcb_add_prop(bool state, WId window, const char* type, const char* prop)
 {
-    if (!is_platform_x11())
+	if (!is_platform_x11())
 	{
 		return;
 	}
@@ -253,24 +230,23 @@ void xcb_add_prop(bool state, WId window, const char *type, const char *prop)
 	{
 		atoms.remove(index);
 	}
-	xcb_connection_t *connection = x11_connection();
+	xcb_connection_t* connection = x11_connection();
 	xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, type_atom, XCB_ATOM_ATOM, 32, atoms.count(), atoms.constData());
 	xcb_flush(connection);
 }
 
-
-//============================================================================
 QString detectWindowManagerX11()
 {
 	// Tries to detect the windowmanager via X11.
-	// See: https://specifications.freedesktop.org/wm-spec/1.3/ar01s03.html#idm46018259946000
-    if (!is_platform_x11())
+	// See:
+	// https://specifications.freedesktop.org/wm-spec/1.3/ar01s03.html#idm46018259946000
+	if (!is_platform_x11())
 	{
 		return "UNKNOWN";
 	}
-	xcb_connection_t *connection = x11_connection();
-	xcb_screen_t *first_screen = xcb_setup_roots_iterator (xcb_get_setup (connection)).data;
-	if(!first_screen)
+	xcb_connection_t* connection = x11_connection();
+	xcb_screen_t* first_screen = xcb_setup_roots_iterator(xcb_get_setup(connection)).data;
+	if (!first_screen)
 	{
 		ADS_PRINT("No screen found via XCB.");
 		return "UNKNOWN";
@@ -280,20 +256,21 @@ QString detectWindowManagerX11()
 	xcb_window_t support_win = 0;
 	QVector<xcb_window_t> sup_windows;
 	xcb_get_prop_list(root, "_NET_SUPPORTING_WM_CHECK", sup_windows, XCB_ATOM_WINDOW);
-	if(sup_windows.length() == 0)
+	if (sup_windows.length() == 0)
 	{
-		// This doesn't seem to be in use anymore, but wmctrl does the same so lets play safe.
-		// Both XCB_ATOM_CARDINAL and XCB_ATOM_WINDOW break down to a uint32_t, so reusing sup_windows should be fine.
+		// This doesn't seem to be in use anymore, but wmctrl does the same so
+		// lets play safe. Both XCB_ATOM_CARDINAL and XCB_ATOM_WINDOW break down
+		// to a uint32_t, so reusing sup_windows should be fine.
 		xcb_get_prop_list(root, "_WIN_SUPPORTING_WM_CHECK", sup_windows, XCB_ATOM_CARDINAL);
 	}
-	if(sup_windows.length() == 0)
+	if (sup_windows.length() == 0)
 	{
 		ADS_PRINT("Failed to get the supporting window on non EWMH conform WM.");
 		return "UNKNOWN";
 	}
 	support_win = sup_windows[0];
 	QString ret = xcb_get_prop_string(support_win, "_NET_WM_NAME");
-	if(ret.length() == 0)
+	if (ret.length() == 0)
 	{
 		ADS_PRINT("Empty WM name occurred.");
 		return "UNKNOWN";
@@ -301,10 +278,9 @@ QString detectWindowManagerX11()
 	return ret;
 }
 
-//============================================================================
 QString windowManager()
 {
-	if(_window_manager.length() == 0)
+	if (_window_manager.length() == 0)
 	{
 		_window_manager = detectWindowManagerX11();
 	}
@@ -312,8 +288,6 @@ QString windowManager()
 }
 #endif
 
-
-//============================================================================
 void replaceSplitterWidget(QSplitter* Splitter, QWidget* From, QWidget* To)
 {
 	int index = Splitter->indexOf(From);
@@ -321,91 +295,88 @@ void replaceSplitterWidget(QSplitter* Splitter, QWidget* From, QWidget* To)
 	Splitter->insertWidget(index, To);
 }
 
-//============================================================================
 CDockInsertParam dockAreaInsertParameters(DockWidgetArea Area)
 {
 	switch (Area)
-    {
-	case TopDockWidgetArea: return CDockInsertParam(Qt::Vertical, false);
-	case RightDockWidgetArea: return CDockInsertParam(Qt::Horizontal, true);
-	case CenterDockWidgetArea:
-	case BottomDockWidgetArea: return CDockInsertParam(Qt::Vertical, true);
-	case LeftDockWidgetArea: return CDockInsertParam(Qt::Horizontal, false);
-	default: CDockInsertParam(Qt::Vertical, false);
-    } // switch (Area)
+	{
+		case TopDockWidgetArea:
+			return CDockInsertParam(Qt::Vertical, false);
+		case RightDockWidgetArea:
+			return CDockInsertParam(Qt::Horizontal, true);
+		case CenterDockWidgetArea:
+		case BottomDockWidgetArea:
+			return CDockInsertParam(Qt::Vertical, true);
+		case LeftDockWidgetArea:
+			return CDockInsertParam(Qt::Horizontal, false);
+		default:
+			CDockInsertParam(Qt::Vertical, false);
+	}// switch (Area)
 
 	return CDockInsertParam(Qt::Vertical, false);
 }
 
-
-//============================================================================
 SideBarLocation toSideBarLocation(DockWidgetArea Area)
 {
 	switch (Area)
 	{
-	case LeftAutoHideArea: return SideBarLeft;
-	case RightAutoHideArea: return SideBarRight;
-	case TopAutoHideArea: return SideBarTop;
-	case BottomAutoHideArea: return SideBarBottom;
-	default:
-		return SideBarNone;
+		case LeftAutoHideArea:
+			return SideBarLeft;
+		case RightAutoHideArea:
+			return SideBarRight;
+		case TopAutoHideArea:
+			return SideBarTop;
+		case BottomAutoHideArea:
+			return SideBarBottom;
+		default:
+			return SideBarNone;
 	}
 
 	return SideBarNone;
 }
 
-
-//============================================================================
 bool isHorizontalSideBarLocation(SideBarLocation Location)
 {
 	switch (Location)
 	{
-	case SideBarTop:
-	case SideBarBottom: return true;
-	case SideBarLeft:
-	case SideBarRight: return false;
-	default:
-		return false;
+		case SideBarTop:
+		case SideBarBottom:
+			return true;
+		case SideBarLeft:
+		case SideBarRight:
+			return false;
+		default:
+			return false;
 	}
 
 	return false;
 }
 
-
-//============================================================================
 bool isSideBarArea(DockWidgetArea Area)
 {
 	return toSideBarLocation(Area) != SideBarNone;
 }
 
-
-//============================================================================
 bool isWayland()
 {
-	return QGuiApplication::platformName().startsWith(
-		QLatin1String("wayland"), Qt::CaseInsensitive);
+	return QGuiApplication::platformName().startsWith(QLatin1String("wayland"), Qt::CaseInsensitive);
 }
 
-
-//============================================================================
 bool isWine()
- {
+{
 #ifdef Q_OS_WIN
-     static const bool underWine = [] {
-         // Override when the environment variable ADS_ForceWine is set.
-         if (qEnvironmentVariableIsSet("ADS_ForceWine"))
-             return qEnvironmentVariableIntValue("ADS_ForceWine") ? true : false;
-         HMODULE ntdll = ::GetModuleHandleW(L"ntdll.dll");
-         return ntdll && ::GetProcAddress(ntdll, "wine_get_version") != nullptr;
-     }();
-     return underWine;
+	static const bool underWine = [] {
+		// Override when the environment variable ADS_ForceWine is set.
+		if (qEnvironmentVariableIsSet("ADS_ForceWine"))
+			return qEnvironmentVariableIntValue("ADS_ForceWine") ? true : false;
+		HMODULE ntdll = ::GetModuleHandleW(L"ntdll.dll");
+		return ntdll && ::GetProcAddress(ntdll, "wine_get_version") != nullptr;
+	}();
+	return underWine;
 #else
-     return false;
+	return false;
 #endif
- }
+}
 
-
-//============================================================================
 QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity)
 {
 	QPixmap TransparentPixmap(Source.size());
@@ -416,8 +387,6 @@ QPixmap createTransparentPixmap(const QPixmap& Source, qreal Opacity)
 	return TransparentPixmap;
 }
 
-
-//============================================================================
 void hideEmptyParentSplitters(CDockSplitter* Splitter)
 {
 	while (Splitter && Splitter->isVisible())
@@ -430,10 +399,7 @@ void hideEmptyParentSplitters(CDockSplitter* Splitter)
 	}
 }
 
-
-//============================================================================
-void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap,
-	ads::eIcon CustomIconId)
+void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap, ads::eIcon CustomIconId)
 {
 	// First we try to use custom icons if available
 	QIcon Icon = CDockManager::iconProvider().customIcon(CustomIconId);
@@ -455,8 +421,6 @@ void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap
 #endif
 }
 
-
-//============================================================================
 void repolishStyle(QWidget* w, eRepolishChildOptions Options)
 {
 	if (!w)
@@ -471,28 +435,23 @@ void repolishStyle(QWidget* w, eRepolishChildOptions Options)
 		return;
 	}
 
-	QList<QWidget*> Children = w->findChildren<QWidget*>(QString(),
-		(RepolishDirectChildren == Options) ? Qt::FindDirectChildrenOnly: Qt::FindChildrenRecursively);
-	for (auto Widget : Children)
+	QList<QWidget*> Children =
+		w->findChildren<QWidget*>(QString(), (RepolishDirectChildren == Options) ? Qt::FindDirectChildrenOnly : Qt::FindChildrenRecursively);
+	for (auto Widget: Children)
 	{
 		Widget->style()->unpolish(Widget);
 		Widget->style()->polish(Widget);
 	}
 }
 
-
-//============================================================================
 QRect globalGeometry(QWidget* w)
 {
-    QRect g = w->geometry();
-    g.moveTopLeft(w->mapToGlobal(QPoint(0, 0)));
-    return g;
+	QRect g = w->geometry();
+	g.moveTopLeft(w->mapToGlobal(QPoint(0, 0)));
+	return g;
 }
 
-} // namespace internal
-} // namespace ads
+}// namespace internal
+}// namespace ads
 
-
-
-//---------------------------------------------------------------------------
 // EOF ads_globals.cpp

@@ -8,7 +8,7 @@ namespace ads
 class CDockOverlay : public QFrame
 {
     %TypeHeaderCode
-    #include <DockOverlay.h>
+    #include <CDockOverlay.h>
     %End
 
 public:
@@ -43,6 +43,9 @@ protected:
 
 class CDockOverlayCross : public QWidget
 {
+	%TypeHeaderCode
+	#include <CDockOverlayCross.h>
+	%End
 
 public:
 	enum eIconColor

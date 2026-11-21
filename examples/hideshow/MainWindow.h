@@ -3,31 +3,35 @@
 
 #include <QMainWindow>
 #include <QStackedLayout>
-#include "DockManager.h"
+
+#include "CDockManager.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
+
+namespace Ui
+{
 class MainWindow;
 }
+
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+		Q_OBJECT
 
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	public:
+		explicit MainWindow(QWidget* parent = 0);
+		~MainWindow();
 
-private slots:
-    void openProject();
-    void closeProject();
+	private slots:
+		void openProject();
+		void closeProject();
 
-private:
-    Ui::MainWindow *ui;
-    QWidget* m_welcomeWidget;
-    ads::CDockManager* m_DockManager;
-    QStackedLayout* m_layout;
+	private:
+		Ui::MainWindow* ui;
+		QWidget* m_welcomeWidget;
+		ads::CDockManager* m_DockManager;
+		QStackedLayout* m_layout;
 };
 
-#endif // MAINWINDOW_H
+#endif// MAINWINDOW_H

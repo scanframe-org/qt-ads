@@ -9,7 +9,7 @@ class CAutoHideTab : CPushButton
 {
     
     %TypeHeaderCode
-    #include <AutoHideTab.h>
+    #include <CAutoHideTab.h>
     %End
 
 protected:

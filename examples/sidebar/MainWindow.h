@@ -2,12 +2,16 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "DockManager.h"
+
+#include "CDockManager.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
+
+namespace Ui
+{
 class MainWindow;
 }
+
 QT_END_NAMESPACE
 
 /**
@@ -16,18 +20,18 @@ QT_END_NAMESPACE
  */
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+		Q_OBJECT
 
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+	public:
+		explicit MainWindow(QWidget* parent = 0);
+		~MainWindow();
 
-protected:
-    virtual void closeEvent(QCloseEvent *event) override;
+	protected:
+		virtual void closeEvent(QCloseEvent* event) override;
 
-private:
-    Ui::MainWindow *ui;
-    ads::CDockManager* m_DockManager;
+	private:
+		Ui::MainWindow* ui;
+		ads::CDockManager* m_DockManager;
 };
 
-#endif // MAINWINDOW_H
+#endif// MAINWINDOW_H

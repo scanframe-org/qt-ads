@@ -461,7 +461,7 @@ The following example shows the minimum code required to use the advanced Qt doc
 
 ```cpp
 #include <QMainWindow>
-#include "DockManager.h"
+#include "CDockManager.h"
 
 namespace Ui {
 class MainWindow;

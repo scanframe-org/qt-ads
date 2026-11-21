@@ -9,7 +9,7 @@ class CAutoHideDockContainer : QFrame
 {
 
     %TypeHeaderCode
-    #include <AutoHideDockContainer.h>
+    #include <CAutoHideDockContainer.h>
     %End
 
 protected:

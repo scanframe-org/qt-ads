@@ -1,18 +1,18 @@
 #include "../../examples/simple/MainWindow.h"
 
-#include "ui_MainWindow.h"
-
 #include <QLabel>
 #include <QTimer>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
+#include "ui_MainWindow.h"
 
-    // Create the dock manager. Because the parent parameter is a QMainWindow
-    // the dock manager registers itself as the central widget.
+MainWindow::MainWindow(QWidget* parent)
+	: QMainWindow(parent)
+	, ui(new Ui::MainWindow)
+{
+	ui->setupUi(this);
+
+	// Create the dock manager. Because the parent parameter is a QMainWindow
+	// the dock manager registers itself as the central widget.
 	m_DockManager = new ads::CDockManager(this);
 
 	// Create example content label - this can be any application specific
@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Create a dock widget with the title Label 1 and set the created label
 	// as the dock widget content
-    ads::CDockWidget* DockWidget = m_DockManager->createDockWidget("Label 1");
+	ads::CDockWidget* DockWidget = m_DockManager->createDockWidget("Label 1");
 	DockWidget->setWidget(l);
 
 	// Add the toggleViewAction of the dock widget to the menu to give
@@ -37,6 +37,5 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+	delete ui;
 }
-

@@ -1,92 +1,89 @@
 #include "mainwindow.h"
 
-#include "ui_mainwindow.h"
-
-#include <QWidgetAction>
-#include <QLabel>
 #include <QCalendarWidget>
-#include <QTreeView>
-#include <QFileSystemModel>
-#include <QTableWidget>
-#include <QHBoxLayout>
-#include <QRadioButton>
-#include <QPushButton>
-#include <QInputDialog>
 #include <QFileDialog>
-#include <QSettings>
+#include <QFileSystemModel>
+#include <QHBoxLayout>
+#include <QInputDialog>
+#include <QLabel>
 #include <QMessageBox>
 #include <QPlainTextEdit>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QSettings>
+#include <QTableWidget>
 #include <QToolBar>
+#include <QTreeView>
+#include <QWidgetAction>
 
-#include "DockAreaWidget.h"
-#include "DockAreaTitleBar.h"
-#include "DockAreaTabBar.h"
-#include "FloatingDockContainer.h"
-#include "DockComponentsFactory.h"
+#include "CDockAreaTabBar.h"
+#include "CDockAreaTitleBar.h"
+#include "CDockAreaWidget.h"
+#include "CDockComponentsFactory.h"
+#include "CFloatingDockContainer.h"
+#include "ui_mainwindow.h"
 
 using namespace ads;
 
-
-CMainWindow::CMainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::CMainWindow)
+CMainWindow::CMainWindow(QWidget* parent)
+	: QMainWindow(parent)
+	, ui(new Ui::CMainWindow)
 {
-    ui->setupUi(this);
-    CDockManager::setConfigFlag(CDockManager::OpaqueSplitterResize, true);
-    CDockManager::setConfigFlag(CDockManager::XmlCompressionEnabled, false);
-    CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
-    DockManager = new CDockManager(this);
+	ui->setupUi(this);
+	CDockManager::setConfigFlag(CDockManager::OpaqueSplitterResize, true);
+	CDockManager::setConfigFlag(CDockManager::XmlCompressionEnabled, false);
+	CDockManager::setConfigFlag(CDockManager::FocusHighlighting, true);
+	DockManager = new CDockManager(this);
 
-    // Set central widget
-    QPlainTextEdit* w = new QPlainTextEdit();
+	// Set central widget
+	QPlainTextEdit* w = new QPlainTextEdit();
 	w->setPlaceholderText("This is the central editor. Enter your text here.");
-    CDockWidget* CentralDockWidget = DockManager->createDockWidget("CentralWidget");
-    CentralDockWidget->setWidget(w);
-    auto* CentralDockArea = DockManager->setCentralWidget(CentralDockWidget);
-    CentralDockArea->setAllowedAreas(DockWidgetArea::OuterDockAreas);
+	CDockWidget* CentralDockWidget = DockManager->createDockWidget("CentralWidget");
+	CentralDockWidget->setWidget(w);
+	auto* CentralDockArea = DockManager->setCentralWidget(CentralDockWidget);
+	CentralDockArea->setAllowedAreas(DockWidgetArea::OuterDockAreas);
 
-    // create other dock widgets
-    QTableWidget* table = new QTableWidget();
-    table->setColumnCount(3);
-    table->setRowCount(10);
-    CDockWidget* TableDockWidget = DockManager->createDockWidget("Table 1");
-    TableDockWidget->setWidget(table);
-    TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
-    TableDockWidget->resize(250, 150);
-    TableDockWidget->setMinimumSize(200,150);
-    auto TableArea = DockManager->addDockWidget(DockWidgetArea::LeftDockWidgetArea, TableDockWidget);
-    ui->menuView->addAction(TableDockWidget->toggleViewAction());
+	// create other dock widgets
+	QTableWidget* table = new QTableWidget();
+	table->setColumnCount(3);
+	table->setRowCount(10);
+	CDockWidget* TableDockWidget = DockManager->createDockWidget("Table 1");
+	TableDockWidget->setWidget(table);
+	TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
+	TableDockWidget->resize(250, 150);
+	TableDockWidget->setMinimumSize(200, 150);
+	auto TableArea = DockManager->addDockWidget(DockWidgetArea::LeftDockWidgetArea, TableDockWidget);
+	ui->menuView->addAction(TableDockWidget->toggleViewAction());
 
-    table = new QTableWidget();
-    table->setColumnCount(5);
-    table->setRowCount(1020);
-    TableDockWidget = DockManager->createDockWidget("Table 2");
-    TableDockWidget->setWidget(table);
-    TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
-    TableDockWidget->resize(250, 150);
-    TableDockWidget->setMinimumSize(200,150);
-    DockManager->addDockWidget(DockWidgetArea::BottomDockWidgetArea, TableDockWidget, TableArea);
-    ui->menuView->addAction(TableDockWidget->toggleViewAction());
+	table = new QTableWidget();
+	table->setColumnCount(5);
+	table->setRowCount(1020);
+	TableDockWidget = DockManager->createDockWidget("Table 2");
+	TableDockWidget->setWidget(table);
+	TableDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
+	TableDockWidget->resize(250, 150);
+	TableDockWidget->setMinimumSize(200, 150);
+	DockManager->addDockWidget(DockWidgetArea::BottomDockWidgetArea, TableDockWidget, TableArea);
+	ui->menuView->addAction(TableDockWidget->toggleViewAction());
 
-    QTableWidget* propertiesTable = new QTableWidget();
-    propertiesTable->setColumnCount(3);
-    propertiesTable->setRowCount(10);
-    CDockWidget* PropertiesDockWidget = DockManager->createDockWidget("Properties");
-    PropertiesDockWidget->setWidget(propertiesTable);
-    PropertiesDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
-    PropertiesDockWidget->resize(250, 150);
-    PropertiesDockWidget->setMinimumSize(200,150);
-    DockManager->addDockWidget(DockWidgetArea::RightDockWidgetArea, PropertiesDockWidget, CentralDockArea);
-    ui->menuView->addAction(PropertiesDockWidget->toggleViewAction());
+	QTableWidget* propertiesTable = new QTableWidget();
+	propertiesTable->setColumnCount(3);
+	propertiesTable->setRowCount(10);
+	CDockWidget* PropertiesDockWidget = DockManager->createDockWidget("Properties");
+	PropertiesDockWidget->setWidget(propertiesTable);
+	PropertiesDockWidget->setMinimumSizeHintMode(CDockWidget::MinimumSizeHintFromDockWidget);
+	PropertiesDockWidget->resize(250, 150);
+	PropertiesDockWidget->setMinimumSize(200, 150);
+	DockManager->addDockWidget(DockWidgetArea::RightDockWidgetArea, PropertiesDockWidget, CentralDockArea);
+	ui->menuView->addAction(PropertiesDockWidget->toggleViewAction());
 
-    createPerspectiveUi();
+	createPerspectiveUi();
 }
 
 CMainWindow::~CMainWindow()
 {
-    delete ui;
+	delete ui;
 }
-
 
 void CMainWindow::createPerspectiveUi()
 {
@@ -96,14 +93,12 @@ void CMainWindow::createPerspectiveUi()
 	PerspectiveComboBox = new QComboBox(this);
 	PerspectiveComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 	PerspectiveComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	connect(PerspectiveComboBox, SIGNAL(currentTextChanged(const QString&)),
-		DockManager, SLOT(openPerspective(const QString&)));
+	connect(PerspectiveComboBox, SIGNAL(currentTextChanged(const QString&)), DockManager, SLOT(openPerspective(const QString&)));
 	PerspectiveListAction->setDefaultWidget(PerspectiveComboBox);
 	ui->toolBar->addSeparator();
 	ui->toolBar->addAction(PerspectiveListAction);
 	ui->toolBar->addAction(SavePerspectiveAction);
 }
-
 
 void CMainWindow::savePerspective()
 {
@@ -120,14 +115,11 @@ void CMainWindow::savePerspective()
 	PerspectiveComboBox->setCurrentText(PerspectiveName);
 }
 
-
 //============================================================================
 void CMainWindow::closeEvent(QCloseEvent* event)
 {
-    // Delete dock manager here to delete all floating widgets. This ensures
-    // that all top level windows of the dock manager are properly closed
-    DockManager->deleteLater();
+	// Delete dock manager here to delete all floating widgets. This ensures
+	// that all top level windows of the dock manager are properly closed
+	DockManager->deleteLater();
 	QMainWindow::closeEvent(event);
 }
-
-

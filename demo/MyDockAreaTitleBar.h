@@ -18,41 +18,37 @@
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
-
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <DockAreaTitleBar.h>
-
+#include <CDockAreaTitleBar.h>
 
 /**
  * Custom DockAreaTitleBar that adds a custom context menu
  */
 class MyDockAreaTitleBar : public ads::CDockAreaTitleBar
 {
-public:
-	explicit MyDockAreaTitleBar(ads::CDockAreaWidget *parent) :
-		CDockAreaTitleBar(parent)
-	{
-	}
+	public:
+		explicit MyDockAreaTitleBar(ads::CDockAreaWidget* parent)
+			: CDockAreaTitleBar(parent)
+		{}
 
-	QMenu* buildContextMenu(QMenu*) override
-	{
-		auto menu = ads::CDockAreaTitleBar::buildContextMenu(nullptr);
-		menu->addSeparator();
-		auto action = menu->addAction(tr("Format HardDrive"));
-
-		connect(action, &QAction::triggered, this, [this]()
+		QMenu* buildContextMenu(QMenu*) override
 		{
-			QMessageBox msgBox;
-			msgBox.setText("No, just kidding");
-			msgBox.setStandardButtons(QMessageBox::Abort);
-			msgBox.setDefaultButton(QMessageBox::Abort);
-			msgBox.exec();
-		});
+			auto menu = ads::CDockAreaTitleBar::buildContextMenu(nullptr);
+			menu->addSeparator();
+			auto action = menu->addAction(tr("Format HardDrive"));
 
-		return menu;
-	}
+			connect(action, &QAction::triggered, this, [this]() {
+				QMessageBox msgBox;
+				msgBox.setText("No, just kidding");
+				msgBox.setStandardButtons(QMessageBox::Abort);
+				msgBox.setDefaultButton(QMessageBox::Abort);
+				msgBox.exec();
+			});
+
+			return menu;
+		}
 };
 
-#endif  // QTADS_MYDOCKAREATITLEBAR_H
+#endif// QTADS_MYDOCKAREATITLEBAR_H

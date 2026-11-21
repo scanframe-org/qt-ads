@@ -7,13 +7,13 @@ QT_FORWARD_DECLARE_CLASS(QDropEvent)
 
 class DroppableItem : public QPushButton
 {
-    Q_OBJECT;
+		Q_OBJECT;
 
-public:
-    DroppableItem(const QString& text = QString(), QWidget* parent = nullptr);
+	public:
+		DroppableItem(const QString& text = QString(), QWidget* parent = nullptr);
 
-protected:
-    void dragEnterEvent(QDragEnterEvent* event) override;
-    void dragLeaveEvent(QDragLeaveEvent* event) override;
-    void dropEvent(QDropEvent* event) override;
+	protected:
+		void dragEnterEvent(QDragEnterEvent* event) override;
+		void dragLeaveEvent(QDragLeaveEvent* event) override;
+		void dropEvent(QDropEvent* event) override;
 };

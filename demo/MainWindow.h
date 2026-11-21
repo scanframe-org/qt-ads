@@ -18,7 +18,6 @@
 ** License along with this library; If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
 
-
 //============================================================================
 /// \file   MainWindow.h
 /// \author Uwe Kindler
@@ -26,49 +25,45 @@
 /// \brief  Declaration of CMainWindow class
 //============================================================================
 
-
 //============================================================================
 //                                   INCLUDES
 //============================================================================
 #include <QMainWindow>
 
-
-
 struct MainWindowPrivate;
-
 
 /**
  * Simple main window for demo
  */
 class CMainWindow : public QMainWindow
 {
-	Q_OBJECT
-private:
-	MainWindowPrivate* d;///< private data - pimpl
-	friend struct MainWindowPrivate;
+		Q_OBJECT
+	private:
+		MainWindowPrivate* d;///< private data - pimpl
+		friend struct MainWindowPrivate;
 
-protected:
-	virtual void closeEvent(QCloseEvent* event) override;
+	protected:
+		virtual void closeEvent(QCloseEvent* event) override;
 
-public:
-	explicit CMainWindow(QWidget *parent = 0);
-	virtual ~CMainWindow();
+	public:
+		explicit CMainWindow(QWidget* parent = 0);
+		virtual ~CMainWindow();
 
-private slots:
-	void on_actionSaveState_triggered(bool);
-	void on_actionRestoreState_triggered(bool);
-	void savePerspective();
-	void onViewToggled(bool Open);
-	void onViewVisibilityChanged(bool Visible);
-	void createEditor();
-	void createTable();
-	void onEditorCloseRequested();
-	void onImageViewerCloseRequested();
-	void showStatusDialog();
-	void toggleDockWidgetWindowTitle();
-	void applyVsStyle();
-	void createImageViewer();
-	void lockWorkspace(bool Value);
+	private slots:
+		void on_actionSaveState_triggered(bool);
+		void on_actionRestoreState_triggered(bool);
+		void savePerspective();
+		void onViewToggled(bool Open);
+		void onViewVisibilityChanged(bool Visible);
+		void createEditor();
+		void createTable();
+		void onEditorCloseRequested();
+		void onImageViewerCloseRequested();
+		void showStatusDialog();
+		void toggleDockWidgetWindowTitle();
+		void applyVsStyle();
+		void createImageViewer();
+		void lockWorkspace(bool Value);
 };
 
-#endif // MAINWINDOW_H
+#endif// MAINWINDOW_H

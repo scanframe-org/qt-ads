@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QWidget>
 #include <QMap>
+#include <QWidget>
 
 #include <memory>
 #include <ostream>
@@ -10,7 +10,7 @@ QT_FORWARD_DECLARE_CLASS(QMenu)
 
 namespace ads
 {
-    class CDockAreaWidget;
+class CDockAreaWidget;
 }
 
 namespace QtAdsUtl
@@ -18,63 +18,77 @@ namespace QtAdsUtl
 
 class DockInDockManager;
 class PerspectivesManager;
-// tab of tab example for https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/306
+
+// tab of tab example for
+// https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/306
 class DockInDockWidget : public QWidget
 {
-    typedef QWidget baseClass;
+		typedef QWidget baseClass;
 
-    Q_OBJECT
+		Q_OBJECT
 
-public:
-    DockInDockWidget( QWidget* parent, bool canCreateNewGroups, PerspectivesManager* perspectivesManager );
-    ~DockInDockWidget() override; 
+	public:
+		DockInDockWidget(QWidget* parent, bool canCreateNewGroups, PerspectivesManager* perspectivesManager);
+		~DockInDockWidget() override;
 
-    ads::CDockAreaWidget* addTabWidget( QWidget* widget, const QString& name, ads::CDockAreaWidget* after );
-    DockInDockWidget* createGroup( const QString& groupName, ads::CDockAreaWidget*& insertPos );
+		ads::CDockAreaWidget* addTabWidget(QWidget* widget, const QString& name, ads::CDockAreaWidget* after);
+		DockInDockWidget* createGroup(const QString& groupName, ads::CDockAreaWidget*& insertPos);
 
-    ads::CDockAreaWidget* addTabWidget( QWidget* widget, const QString& name, QIcon icon, ads::CDockAreaWidget* after );
-    DockInDockWidget* createGroup( const QString& groupName, QIcon icon, ads::CDockAreaWidget*& insertPos );
-    
-    QString getGroupNameError( const QString& groupName );
-    void destroyGroup( DockInDockWidget* widget );
+		ads::CDockAreaWidget* addTabWidget(QWidget* widget, const QString& name, QIcon icon, ads::CDockAreaWidget* after);
+		DockInDockWidget* createGroup(const QString& groupName, QIcon icon, ads::CDockAreaWidget*& insertPos);
 
-    /** Manually fill a given view menu */
-    void setupViewMenu( QMenu* menu );
+		QString getGroupNameError(const QString& groupName);
+		void destroyGroup(DockInDockWidget* widget);
 
-    /** Attach a view menu that will be automatically fill */
-    void attachViewMenu( QMenu* menu );
+		/** Manually fill a given view menu */
+		void setupViewMenu(QMenu* menu);
 
-    bool isTopLevel();
-    void setupMenu( QMenu* menu, const std::vector<DockInDockManager*>& moveTo );
+		/** Attach a view menu that will be automatically fill */
+		void attachViewMenu(QMenu* menu);
 
-    inline DockInDockManager* getManager() { return m_mgr; }
-    inline DockInDockWidget* getTopLevelDockWidget() { return m_topLevelDockWidget; }
+		bool isTopLevel();
+		void setupMenu(QMenu* menu, const std::vector<DockInDockManager*>& moveTo);
 
-    inline bool canCreateNewGroups() const { return m_canCreateNewGroups; }
+		inline DockInDockManager* getManager()
+		{
+			return m_mgr;
+		}
 
-    void dumpStatus( std::ostream& str, std::string tab = "" );
+		inline DockInDockWidget* getTopLevelDockWidget()
+		{
+			return m_topLevelDockWidget;
+		}
 
-    inline PerspectivesManager* getPerspectivesManager() { return m_perspectivesManager; }
+		inline bool canCreateNewGroups() const
+		{
+			return m_canCreateNewGroups;
+		}
 
-    void setNewPerspectiveDefaultName( const QString& defaultName );
+		void dumpStatus(std::ostream& str, std::string tab = "");
 
-private slots:
-    void autoFillAttachedViewMenu();
-    void createPerspective();
+		inline PerspectivesManager* getPerspectivesManager()
+		{
+			return m_perspectivesManager;
+		}
 
-private:
-    DockInDockManager* m_mgr;
-    DockInDockWidget* m_topLevelDockWidget;
+		void setNewPerspectiveDefaultName(const QString& defaultName);
 
-    bool m_canCreateNewGroups;
+	private slots:
+		void autoFillAttachedViewMenu();
+		void createPerspective();
 
-    DockInDockWidget( QWidget* parent, DockInDockWidget* topLevelDockWidget,  PerspectivesManager* perspectivesManager );
+	private:
+		DockInDockManager* m_mgr;
+		DockInDockWidget* m_topLevelDockWidget;
 
-    PerspectivesManager* m_perspectivesManager;
-    QString m_newPerspectiveDefaultName;
+		bool m_canCreateNewGroups;
 
-    void fillPerspectivesMenu( QMenu* menu );
+		DockInDockWidget(QWidget* parent, DockInDockWidget* topLevelDockWidget, PerspectivesManager* perspectivesManager);
+
+		PerspectivesManager* m_perspectivesManager;
+		QString m_newPerspectiveDefaultName;
+
+		void fillPerspectivesMenu(QMenu* menu);
 };
 
-}
-
+}// namespace QtAdsUtl

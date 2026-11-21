@@ -6,33 +6,33 @@ namespace QtAdsUtl
 {
 
 class DockInDockWidget;
+
 class LoadPerspectiveAction : public QAction
 {
-    Q_OBJECT
-public:
-    LoadPerspectiveAction( QMenu* parent, const QString& name, QtAdsUtl::DockInDockWidget& dockManager );
+		Q_OBJECT
+	public:
+		LoadPerspectiveAction(QMenu* parent, const QString& name, QtAdsUtl::DockInDockWidget& dockManager);
 
-public slots:
-    void load();
+	public slots:
+		void load();
 
-private:
-    QString name;
-    QtAdsUtl::DockInDockWidget& dockManager;
+	private:
+		QString name;
+		QtAdsUtl::DockInDockWidget& dockManager;
 };
 
 class RemovePerspectiveAction : public QAction
 {
-    Q_OBJECT
-public:
-    RemovePerspectiveAction( QMenu* parent, const QString& name, QtAdsUtl::DockInDockWidget& dockManager );
+		Q_OBJECT
+	public:
+		RemovePerspectiveAction(QMenu* parent, const QString& name, QtAdsUtl::DockInDockWidget& dockManager);
 
-public slots:
-    void remove();
+	public slots:
+		void remove();
 
-private:
-    QString name;
-    QtAdsUtl::DockInDockWidget& dockManager;
+	private:
+		QString name;
+		QtAdsUtl::DockInDockWidget& dockManager;
 };
 
-}
-
+}// namespace QtAdsUtl

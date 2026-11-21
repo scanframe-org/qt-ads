@@ -8,7 +8,7 @@ namespace ads
 class CDockAreaTabBar : QScrollArea
 {
     %TypeHeaderCode
-    #include <DockAreaTabBar.h>
+    #include <CDockAreaTabBar.h>
     %End
     
 protected:

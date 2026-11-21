@@ -9,7 +9,7 @@ class CResizeHandle : QFrame
 {
 
     %TypeHeaderCode
-    #include <ResizeHandle.h>
+    #include <CResizeHandle.h>
     %End
 
 protected:

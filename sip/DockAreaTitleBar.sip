@@ -8,7 +8,7 @@ namespace ads
 class CTitleBarButton : QToolButton
 {
     %TypeHeaderCode
-    #include <DockAreaTitleBar.h>
+    #include <CTitleBarButton.h>
     %End
     
 public:
@@ -28,7 +28,7 @@ protected:
 class CDockAreaTitleBar : QFrame
 {
     %TypeHeaderCode
-    #include <DockAreaTitleBar.h>
+    #include <CDockAreaTitleBar.h>
     %End
 
 protected:
