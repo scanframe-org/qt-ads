@@ -39,6 +39,10 @@
 #include "IconProvider.h"
 #include "ads_globals.h"
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include <QSettings>
 #include <QFile>
@@ -381,6 +385,24 @@ bool isWayland()
 	return QGuiApplication::platformName().startsWith(
 		QLatin1String("wayland"), Qt::CaseInsensitive);
 }
+
+
+//============================================================================
+bool isWine()
+ {
+#ifdef Q_OS_WIN
+     static const bool underWine = [] {
+         // Override when the environment variable ADS_ForceWine is set.
+         if (qEnvironmentVariableIsSet("ADS_ForceWine"))
+             return qEnvironmentVariableIntValue("ADS_ForceWine") ? true : false;
+         HMODULE ntdll = ::GetModuleHandleW(L"ntdll.dll");
+         return ntdll && ::GetProcAddress(ntdll, "wine_get_version") != nullptr;
+     }();
+     return underWine;
+#else
+     return false;
+#endif
+ }
 
 
 //============================================================================

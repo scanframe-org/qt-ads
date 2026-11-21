@@ -60,6 +60,8 @@
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 #include "linux/FloatingWidgetTitleBar.h"
 #include <xcb/xcb.h>
+#elif defined(Q_OS_WIN)
+#include "linux/FloatingWidgetTitleBar.h"
 #endif
 
 
@@ -364,6 +366,7 @@ static const char* windowsMessageString(int MessageId)
 
 
 static unsigned int zOrderCounterFloating = 0;
+
 /**
  * Private data class of CFloatingDockContainer class (pimpl)
  */
@@ -381,7 +384,7 @@ struct FloatingDockContainerPrivate
 	bool Hiding = false;
 	bool AutoHideChildren = true;
 	bool HideContentOnNextHide = false;
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
     QWidget* MouseEventHandler = nullptr;
     CFloatingWidgetTitleBar* TitleBar = nullptr;
 	bool IsResizing = false;
@@ -441,7 +444,7 @@ struct FloatingDockContainerPrivate
 
 	void setWindowTitle(const QString &Text)
 	{
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
 		if (TitleBar)
 		{
 			TitleBar->setTitle(Text);
@@ -513,16 +516,25 @@ void FloatingDockContainerPrivate::titleMouseReleaseEvent()
 		return;
 	}
 
-	// DockManager will be unlinked from this within DropContainer->dropFloatingWidget
-	const auto OriginalDockManager = this->DockManager.data();
-
-	if (DockManager->dockAreaOverlay()->dropAreaUnderCursor() != InvalidDockWidgetArea
-	 || DockManager->containerOverlay()->dropAreaUnderCursor() != InvalidDockWidgetArea)
+	// processEvents() below runs a nested event loop. The floating widget,
+	// the drop container or the dock manager may be deleted during it, so
+	// everything needed afterwards is held in guarded pointers and 'this' is
+	// not touched after the nested loop.
+	QPointer<CFloatingDockContainer> Floating(_this);
+	QPointer<CDockContainerWidget> Target(DropContainer);
+	QPointer<CDockManager> Manager(DockManager);
+	if (!Manager)
 	{
-		CDockOverlay *Overlay = DockManager->containerOverlay();
+		return;
+	}
+
+	if (Manager->dockAreaOverlay()->dropAreaUnderCursor() != InvalidDockWidgetArea
+	 || Manager->containerOverlay()->dropAreaUnderCursor() != InvalidDockWidgetArea)
+	{
+		CDockOverlay *Overlay = Manager->containerOverlay();
 		if (!Overlay->dropOverlayRect().isValid())
 		{
-			Overlay = DockManager->dockAreaOverlay();
+			Overlay = Manager->dockAreaOverlay();
 		}
 
 		// Do not resize if we drop into an autohide sidebar area to preserve
@@ -532,27 +544,35 @@ void FloatingDockContainerPrivate::titleMouseReleaseEvent()
 			// Resize the floating widget to the size of the highlighted drop area
 			// rectangle
 			QRect Rect = Overlay->dropOverlayRect();
-			int FrameWidth = (_this->frameSize().width() - _this->rect().width())
-				/ 2;
-			int TitleBarHeight = _this->frameSize().height()
-				- _this->rect().height() - FrameWidth;
+			int FrameWidth = (Floating->frameSize().width() - Floating->rect().width()) / 2;
+			int TitleBarHeight = Floating->frameSize().height()
+				- Floating->rect().height() - FrameWidth;
 			if (Rect.isValid())
 			{
 				QPoint TopLeft = Overlay->mapToGlobal(Rect.topLeft());
 				TopLeft.ry() += TitleBarHeight;
-				_this->setGeometry(
+				Floating->setGeometry(
 					QRect(TopLeft,
 						QSize(Rect.width(), Rect.height() - TitleBarHeight)));
 				QApplication::processEvents();
+				// 'Overlay' must not be used past this point
 			}
 		}
-		DropContainer->dropFloatingWidget(_this, QCursor::pos());
+
+		// The nested loop may have deleted either target, so check both
+		if (Floating && Target)
+		{
+			// DockManager will be unlinked from this within dropFloatingWidget
+			Target->dropFloatingWidget(Floating, QCursor::pos());
+		}
 	}
 
-	OriginalDockManager->containerOverlay()->hideOverlay();
-	OriginalDockManager->dockAreaOverlay()->hideOverlay();
+	if (Manager)
+	{
+		Manager->containerOverlay()->hideOverlay();
+		Manager->dockAreaOverlay()->hideOverlay();
+	}
 }
-
 
 //============================================================================
 void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
@@ -562,7 +582,7 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &GlobalPos)
 		return;
 	}
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
 	// Prevent display of drop overlays and docking as long as a model dialog
 	// is active
     if (qApp->activeModalWidget())
@@ -695,14 +715,37 @@ CFloatingDockContainer::CFloatingDockContainer(CDockManager *DockManager) :
 	}
 	setMouseTracking(true);
 	d->DockContainer->installEventFilter(this);
-#else
-	setWindowFlags(
-	    Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
-	QBoxLayout *l = new QBoxLayout(QBoxLayout::TopToBottom);
-	l->setContentsMargins(0, 0, 0, 0);
-	l->setSpacing(0);
-	setLayout(l);
-	l->addWidget(d->DockContainer);
+#elif defined(Q_OS_WIN)
+	if (internal::isWine())
+	{
+		// Under Wine, native window borders don't work properly.
+		// Use a frameless window with a custom QWidget title bar instead.
+		d->TitleBar = new CFloatingWidgetTitleBar(this);
+		setWindowFlags(Qt::Window | Qt::WindowMinMaxButtonsHint | Qt::FramelessWindowHint);
+		d->TitleBar->enableCloseButton(isClosable());
+		connect(d->TitleBar, SIGNAL(closeRequested()), SLOT(close()));
+		connect(d->TitleBar, &CFloatingWidgetTitleBar::maximizeRequested,
+				this, &CFloatingDockContainer::onMaximizeRequest);
+		QBoxLayout *l = new QBoxLayout(QBoxLayout::TopToBottom);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->setSpacing(0);
+		setLayout(l);
+		l->addWidget(d->TitleBar);
+		l->addWidget(d->DockContainer);
+		setMouseTracking(true);
+		d->DockContainer->installEventFilter(this);
+	}
+	else
+	{
+		// Native Windows: use native window borders
+		setWindowFlags(
+		    Qt::Window | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+		QBoxLayout *l = new QBoxLayout(QBoxLayout::TopToBottom);
+		l->setContentsMargins(0, 0, 0, 0);
+		l->setSpacing(0);
+		setLayout(l);
+		l->addWidget(d->DockContainer);
+	}
 #endif
 
 	if (CDockManager::testConfigFlag(CDockManager::UseNativeWindows))
@@ -762,9 +805,12 @@ CFloatingDockContainer::CFloatingDockContainer(CDockWidget *DockWidget) :
 CFloatingDockContainer::~CFloatingDockContainer()
 {
 	ADS_PRINT("~CFloatingDockContainer");
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	qApp->removeEventFilter(this);
-	updateCursorFor(Qt::Edges());
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
+	if (!hasNativeTitleBar())
+	{
+		qApp->removeEventFilter(this);
+		updateCursorFor(Qt::Edges());
+	}
 #endif
 	if (d->DockManager)
 	{
@@ -827,11 +873,11 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
 			ADS_PRINT("FloatingWidget::changeEvent QEvent::ActivationChange ");
 			d->zOrderIndex = ++zOrderCounterFloating;
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-			if (d->DraggingState == DraggingFloatingWidget)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
+			if (!hasNativeTitleBar() && d->DraggingState == DraggingFloatingWidget)
 			{
 				d->titleMouseReleaseEvent();
-				d->DraggingState = DraggingInactive;
+				//d->DraggingState = DraggingInactive;
 			}
 #endif
 		}
@@ -858,6 +904,11 @@ void CFloatingDockContainer::changeEvent(QEvent *event)
         if (d->TitleBar)
         {
             d->TitleBar->setVisible(!(isFloating() && isFullScreen()));
+        }
+#elif defined(Q_OS_WIN)
+        if (d->TitleBar)
+        {
+            d->TitleBar->setVisible(!isFullScreen());
         }
 #endif
 		break;
@@ -988,9 +1039,12 @@ void CFloatingDockContainer::closeEvent(QCloseEvent *event)
 void CFloatingDockContainer::hideEvent(QHideEvent *event)
 {
 	Super::hideEvent(event);
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	qApp->removeEventFilter(this);
-	updateCursorFor(Qt::Edges());
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
+	if (!hasNativeTitleBar())
+	{
+		qApp->removeEventFilter(this);
+		updateCursorFor(Qt::Edges());
+	}
 #endif
     if (event->spontaneous())
     {
@@ -1032,9 +1086,12 @@ void CFloatingDockContainer::hideEvent(QHideEvent *event)
 void CFloatingDockContainer::showEvent(QShowEvent *event)
 {
 	Super::showEvent(event);
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	qApp->removeEventFilter(this);
-	qApp->installEventFilter(this);
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
+	if (!hasNativeTitleBar())
+	{
+		qApp->removeEventFilter(this);
+		qApp->installEventFilter(this);
+	}
     if (CDockManager::testConfigFlag(CDockManager::FocusHighlighting))
     {
         this->window()->activateWindow();
@@ -1047,27 +1104,39 @@ void CFloatingDockContainer::showEvent(QShowEvent *event)
 void CFloatingDockContainer::startFloating(const QPoint &DragStartMousePos,
     const QSize &Size, eDragState DragState, QWidget *MouseEventHandler)
 {
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-    if (!isMaximized())
-    {
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
+	if (hasNativeTitleBar())
+	{
+		// Native title bar on Windows: use simple path
 		resize(Size);
 		d->DragStartMousePosition = DragStartMousePos;
-    }
-	d->setState(DragState);
-	if (DraggingFloatingWidget == DragState)
-	{
-		d->MouseEventHandler = MouseEventHandler;
-		if (d->MouseEventHandler)
-		{
-			d->MouseEventHandler->grabMouse();
-		}
-	}
-
-	if (!isMaximized())
-	{
+		d->setState(DragState);
 		moveFloating();
+		show();
 	}
-	show();
+	else
+	{
+		// Custom title bar (Linux non-native or Windows under Wine)
+		if (!isMaximized())
+		{
+			resize(Size);
+			d->DragStartMousePosition = DragStartMousePos;
+		}
+		d->setState(DragState);
+		if (DraggingFloatingWidget == DragState)
+		{
+			d->MouseEventHandler = MouseEventHandler;
+			if (d->MouseEventHandler)
+			{
+				d->MouseEventHandler->grabMouse();
+			}
+		}
+		if (!isMaximized())
+		{
+			moveFloating();
+		}
+		show();
+	}
 #else
     Q_UNUSED(MouseEventHandler)
 	resize(Size);
@@ -1189,8 +1258,8 @@ bool CFloatingDockContainer::restoreState(CDockingStateReader &Stream,
 		return false;
 	}
 	onDockAreasAddedOrRemoved();
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	if(d->TitleBar)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
+	if(!hasNativeTitleBar() && d->TitleBar)
 	{
 		d->TitleBar->setMaximizedIcon(windowState() == Qt::WindowMaximized);
 	}
@@ -1244,13 +1313,16 @@ void CFloatingDockContainer::finishDropOperation()
 void CFloatingDockContainer::finishDragging()
 {
 	ADS_PRINT("CFloatingDockContainer::finishDragging");
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
-	setWindowOpacity(1);
-	activateWindow();
-	if (d->MouseEventHandler)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
+	if (!hasNativeTitleBar())
 	{
-	   d->MouseEventHandler->releaseMouse();
-	   d->MouseEventHandler = nullptr;
+		setWindowOpacity(1);
+		activateWindow();
+		if (d->MouseEventHandler)
+		{
+		   d->MouseEventHandler->releaseMouse();
+		   d->MouseEventHandler = nullptr;
+		}
 	}
 #endif
 	d->titleMouseReleaseEvent();
@@ -1606,7 +1678,7 @@ void CFloatingDockContainer::moveEvent(QMoveEvent *event)
 #endif
 
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
 //============================================================================
 void CFloatingDockContainer::onMaximizeRequest()
 {
@@ -1657,8 +1729,9 @@ bool CFloatingDockContainer::isMaximized() const
 {
 	return windowState() == Qt::WindowMaximized;
 }
+#endif
 
-
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 //============================================================================
 void CFloatingDockContainer::show()
 {
@@ -1712,7 +1785,67 @@ bool CFloatingDockContainer::event(QEvent *e)
 	}
 	return result;
 }
+#endif // Q_OS_UNIX && !Q_OS_MACOS
 
+#ifdef Q_OS_WIN
+//============================================================================
+void CFloatingDockContainer::resizeEvent(QResizeEvent *event)
+{
+	if (!hasNativeTitleBar())
+	{
+		d->IsResizing = true;
+	}
+	Super::resizeEvent(event);
+	if (!hasNativeTitleBar())
+	{
+		d->IsResizing = false;
+	}
+}
+
+
+//============================================================================
+void CFloatingDockContainer::moveEvent(QMoveEvent *event)
+{
+	Super::moveEvent(event);
+	// Only handle drag detection for custom title bar (Wine mode).
+	// Native Windows uses nativeEvent() for drag detection.
+	if (!hasNativeTitleBar() && !d->IsResizing && event->spontaneous() && d->MousePressed)
+	{
+        d->setState(DraggingFloatingWidget);
+		d->updateDropOverlays(QCursor::pos());
+	}
+}
+
+
+//============================================================================
+bool CFloatingDockContainer::event(QEvent *e)
+{
+	bool result = Super::event(e);
+	// Only track mouse press state for custom title bar (Wine mode).
+	// Native Windows uses nativeEvent() for drag detection.
+	// DeferredDelete may destroy this in Super::event(), so don't access d for other events.
+	switch (e->type())
+	{
+	case QEvent::WindowActivate:
+		if (!hasNativeTitleBar())
+		{
+			d->MousePressed = false;
+		}
+		break;
+	case QEvent::WindowDeactivate:
+		if (!hasNativeTitleBar())
+		{
+			d->MousePressed = true;
+		}
+		break;
+	default:
+		break;
+	}
+	return result;
+}
+#endif // Q_OS_WIN
+
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
 //============================================================================
 bool CFloatingDockContainer::hasNativeTitleBar()
 {
@@ -1725,7 +1858,7 @@ int CFloatingDockContainer::gripWidth() const
 	return d->_gripWidth;
 }
 
-// Edge/corner resize support on Linux
+// Edge/corner resize support (Linux and Windows under Wine)
 namespace
 {
 struct EventHelper
@@ -1841,6 +1974,11 @@ void CFloatingDockContainer::performManualResize(const QPointF& globalPos)
 
 void CFloatingDockContainer::mousePressEvent(QMouseEvent* event)
 {
+    if (hasNativeTitleBar())
+    {
+        Super::mousePressEvent(event);
+        return;
+    }
     if (event->button() != Qt::LeftButton)
     {
         Super::mousePressEvent(event);
@@ -1867,6 +2005,11 @@ void CFloatingDockContainer::mousePressEvent(QMouseEvent* event)
 
 void CFloatingDockContainer::mouseMoveEvent(QMouseEvent* event)
 {
+    if (hasNativeTitleBar())
+    {
+        Super::mouseMoveEvent(event);
+        return;
+    }
     if (d->_manualResizing)
     {
         performManualResize(EventHelper(event).globalPosition());
@@ -1879,12 +2022,22 @@ void CFloatingDockContainer::mouseMoveEvent(QMouseEvent* event)
 
 void CFloatingDockContainer::mouseReleaseEvent(QMouseEvent* event)
 {
+    if (hasNativeTitleBar())
+    {
+        Super::mouseReleaseEvent(event);
+        return;
+    }
     d->_manualResizing = false;
     Super::mouseReleaseEvent(event);
 }
 
 void CFloatingDockContainer::leaveEvent(QEvent* event)
 {
+    if (hasNativeTitleBar())
+    {
+        Super::leaveEvent(event);
+        return;
+    }
     if (!d->_manualResizing)
         updateCursorFor(Qt::Edges());
     Super::leaveEvent(event);
@@ -1892,6 +2045,10 @@ void CFloatingDockContainer::leaveEvent(QEvent* event)
 
 bool CFloatingDockContainer::eventFilter(QObject* watched, QEvent* event)
 {
+    if (hasNativeTitleBar())
+    {
+        return Super::eventFilter(watched, event);
+    }
     const QEvent::Type type = event->type();
     if (type != QEvent::MouseMove && type != QEvent::HoverMove && type != QEvent::Enter
         && type != QEvent::Leave && type != QEvent::MouseButtonPress)

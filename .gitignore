@@ -2,6 +2,9 @@
 /cmake/lib/*
 /cmake-build*
 lib/*
+/user.ini
+/.tc-env.*.bat
+/CMakeUserPresets.json
 *.pro.user*
 /build
 *.o

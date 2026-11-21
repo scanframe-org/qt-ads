@@ -221,12 +221,12 @@ protected:
 #ifdef Q_OS_MACOS
 	bool event(QEvent *e) override;
     void moveEvent(QMoveEvent *event) override;
-#elif defined(Q_OS_UNIX)
+#elif defined(Q_OS_UNIX) || defined(Q_OS_WIN)
 	void moveEvent(QMoveEvent *event) override;
 	void resizeEvent(QResizeEvent *event) override;
 	bool event(QEvent *e) override;
 
-	// Edge/corner resize support on Linux
+	// Edge/corner resize support (Linux and Windows under Wine)
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
@@ -376,7 +376,7 @@ public:
 	 */
 	bool isDraggingActive() const;
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
     /**
 	 * This is a function that responds to FloatingWidgetTitleBar::maximizeRequest()
 	 * Maximize or normalize the container size.
@@ -403,11 +403,13 @@ public:
 	 */
 	bool isMaximized() const;
 
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
 	/**
 	 * Patched show to prevent the window from appearing in the taskbar.
 	 * Hides non-virtual method from QWidget.
 	 */
 	void show();
+#endif
 
 	/**
 	 * Returns true if the floating widget has a native titlebar or false if
@@ -416,7 +418,7 @@ public:
 	bool hasNativeTitleBar();
 #endif
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)
+#if (defined(Q_OS_UNIX) && !defined(Q_OS_MACOS)) || defined(Q_OS_WIN)
 	/**
 	 * Returns the resize grip width in pixels (for title bar edge detection).
 	 */

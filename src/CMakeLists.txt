@@ -127,8 +127,11 @@ set(ads_HEADERS
     ResizeHandle.h
 )
 
-# Linux and other Unix platforms use a custom floating-window title bar.
-if(UNIX AND NOT APPLE)
+# Linux and Windows use a custom floating-window title bar.
+# On Linux it replaces the native title bar for frameless windows.
+# On Windows it is used when running under Wine, where native window
+# borders do not work correctly.
+if(UNIX AND NOT APPLE OR WIN32)
     list(PREPEND ads_SRCS
         linux/FloatingWidgetTitleBar.cpp
     )

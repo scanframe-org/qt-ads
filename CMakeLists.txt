@@ -110,6 +110,20 @@ if(QtADS_IS_TOP_LEVEL)
     endif()
 endif()
 
+# ---------------------------------------------------------------------------
+# Qt and MSVC runtime
+# ---------------------------------------------------------------------------
+
+find_package(
+    QT
+    NAMES Qt6 Qt5
+    COMPONENTS Core
+    REQUIRED
+)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+
+include(QtMsvcRuntime)
+ads_set_msvc_runtime_from_qt(Qt${QT_VERSION_MAJOR}::Core)
 
 # ---------------------------------------------------------------------------
 # Library
@@ -120,8 +134,6 @@ add_subdirectory(src)
 # ---------------------------------------------------------------------------
 # Examples
 # ---------------------------------------------------------------------------
-
-find_package(Qt6 REQUIRED COMPONENTS Core)
 
 if(BUILD_EXAMPLES)
     if(USE_QT_QUICK)

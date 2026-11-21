@@ -241,6 +241,14 @@ bool isWayland();
 
 
 /**
+ * Detects whether the application is running under Wine.
+ * Returns true if Wine is detected, false otherwise.
+ * Uses a static variable so the detection runs only once.
+ */
+bool isWine();
+
+
+/**
  * Returns the SieBarLocation for the AutoHide dock widget areas
  */
 SideBarLocation toSideBarLocation(DockWidgetArea Area);

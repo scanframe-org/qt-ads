@@ -143,4 +143,4 @@ Standard: c++17
 StatementMacros: [ 'Q_UNUSED', 'PIMPL_D', 'PIMPL_Q', 'OD_ENTRY', 'OD_ENTRY_PROCIMG' ]
 
 TabWidth: 4
-UseTab: Never
+UseTab: ForContinuationAndIndentation
