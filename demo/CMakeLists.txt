@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
-project(ads_demo VERSION ${QtADS_VERSION})
+# Use the same version as the parent project.
+project(ads_demo VERSION ${PROJECT_VERSION})
 
 if (QtADS_IS_TOP_LEVEL)
 	set(CMAKE_FOLDER "Demo")
@@ -52,7 +53,7 @@ set_target_properties(
 		CXX_STANDARD 14
 		CXX_STANDARD_REQUIRED ON
 		CXX_EXTENSIONS OFF
-		VERSION ${QtADS_VERSION}
+		VERSION ${PROJECT_VERSION}
 		EXPORT_NAME "Qt Advanced Docking System Demo"
 		ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"
 		LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${ads_PlatformDir}/lib"

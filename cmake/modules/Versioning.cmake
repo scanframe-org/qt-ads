@@ -12,39 +12,37 @@
 set(_ADS_VERSIONING_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
 # ------------------------------------------------------------
-# Generates the ADS version header.
+# Generates the ADS version header using the PROJECT_VERSION_xxxx variables.
 # ------------------------------------------------------------
-function(generate_ads_version_header)
-	if(NOT DEFINED QtADS_VERSION_MAJOR
-		 OR NOT DEFINED QtADS_VERSION_MINOR
-		 OR NOT DEFINED QtADS_VERSION_PATCH)
+function (generate_ads_version_header)
+	if (NOT DEFINED PROJECT_VERSION_MAJOR OR NOT DEFINED PROJECT_VERSION_MINOR OR NOT DEFINED PROJECT_VERSION_PATCH)
 		message(FATAL_ERROR "ADS major, minor, or patch version variables are not defined.")
-	endif()
+	endif ()
 
 	configure_file("${_ADS_VERSIONING_MODULE_DIR}/ads_version.h.in" "${CMAKE_CURRENT_BINARY_DIR}/ads_version.h" @ONLY)
-endfunction()
+endfunction ()
 
 # ------------------------------------------------------------
 # Adds Windows version information resources to a target.
 # ------------------------------------------------------------
-function(add_windows_version_resources target)
-	if(NOT WIN32)
+function (add_windows_version_resources target)
+	if (NOT WIN32)
 		return()
-	endif()
+	endif ()
 
-	if(NOT TARGET "${target}")
+	if (NOT TARGET "${target}")
 		message(FATAL_ERROR "add_windows_version_resources: Target '${target}' does not exist.")
-	endif()
+	endif ()
 
 	set(_rc_in "${_ADS_VERSIONING_MODULE_DIR}/FileVersionInfo.rc.in")
 
-	if(NOT EXISTS "${_rc_in}")
+	if (NOT EXISTS "${_rc_in}")
 		message(FATAL_ERROR "Windows version resource template not found: ${_rc_in}")
-	endif()
+	endif ()
 
 	set(_rc_out "${CMAKE_CURRENT_BINARY_DIR}/${target}_version.rc")
 
 	configure_file("${_rc_in}" "${_rc_out}" @ONLY)
 
 	target_sources("${target}" PRIVATE "${_rc_out}")
-endfunction()
+endfunction ()

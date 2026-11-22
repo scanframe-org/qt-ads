@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(QtAdvancedDockingSystem VERSION ${QtADS_VERSION} LANGUAGES CXX)
+# Use the same version as the parent project.
+project(QtAdvancedDockingSystem VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
 # ---------------------------------------------------------------------------
 # CMake modules
@@ -264,8 +265,8 @@ set_target_properties(
 		# Compile Qt resource files automatically.
 		AUTORCC ON
 		# Shared-library ABI version information.
-		VERSION ${QtADS_VERSION}
-		SOVERSION ${QtADS_VERSION_MAJOR}
+		VERSION ${PROJECT_VERSION}
+		SOVERSION ${PROJECT_VERSION_MAJOR}
 		# Name used when this target is exported.
 		EXPORT_NAME ${library_name}
 		# Append "d" to Debug library filenames.
@@ -286,7 +287,7 @@ include(CMakePackageConfigHelpers)
 #
 # Versions with the same major version are considered compatible.
 write_basic_package_version_file(
-	"${library_name}ConfigVersion.cmake" VERSION ${QtADS_VERSION} COMPATIBILITY SameMajorVersion
+	"${library_name}ConfigVersion.cmake" VERSION ${PROJECT_VERSION} COMPATIBILITY SameMajorVersion
 )
 
 # ---------------------------------------------------------------------------

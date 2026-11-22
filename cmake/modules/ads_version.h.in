@@ -25,9 +25,9 @@
 //============================================================================
 
 // ADS version components
-#define ADS_VERSION_MAJOR @QtADS_VERSION_MAJOR@
-#define ADS_VERSION_MINOR @QtADS_VERSION_MINOR@
-#define ADS_VERSION_PATCH @QtADS_VERSION_PATCH@
+#define ADS_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define ADS_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define ADS_VERSION_PATCH @PROJECT_VERSION_PATCH@
 
 // ADS_VERSION is (major << 16) | (minor << 8) | patch.
 #define ADS_VERSION ADS_VERSION_CHECK(ADS_VERSION_MAJOR, ADS_VERSION_MINOR, ADS_VERSION_PATCH)

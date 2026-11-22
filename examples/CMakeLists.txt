@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
-project(QtADSExamples LANGUAGES CXX VERSION ${QtADS_VERSION})
+# Use the same version as the parent project.
+project(QtADSExamples LANGUAGES CXX VERSION ${PROJECT_VERSION})
 
 if (QtADS_IS_TOP_LEVEL)
 	set(CMAKE_FOLDER "Examples")

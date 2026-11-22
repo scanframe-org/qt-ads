@@ -71,3 +71,9 @@ Package the **release** version.
 ```shell
 ./build.py docker -b tmp -- -bp gnu-release 
 ```
+
+Package the MSVC **debug** version.
+
+```shell
+./build.py docker -b tmp -- w -- -bp msvc-release
+```

@@ -39,11 +39,9 @@ endif ()
 
 # Start the top level project.
 project(
-	QtADS
-	VERSION "${SF_GIT_TAG_VERSION}"
-	DESCRIPTION "Advanced Docking System for Qt"
-	HOMEPAGE_URL "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System"
-	LANGUAGES CXX
+	# The name of the project cannot be changed since it it used in variable names.
+	QtADS VERSION "${SF_GIT_TAG_VERSION}" DESCRIPTION "Advanced Docking System for Qt"
+	HOMEPAGE_URL "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System" LANGUAGES CXX
 )
 
 # Check if the file exists and include it again.
@@ -117,14 +115,8 @@ endif ()
 # Qt and MSVC runtime
 # ---------------------------------------------------------------------------
 
-find_package(
-	QT NAMES Qt6 Qt5
-	COMPONENTS Core
-	REQUIRED)
-find_package(
-	Qt${QT_VERSION_MAJOR}
-	COMPONENTS Core
-	REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
 include(QtMsvcRuntime)
 ads_set_msvc_runtime_from_qt(Qt${QT_VERSION_MAJOR}::Core)
