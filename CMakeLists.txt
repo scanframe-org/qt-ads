@@ -39,9 +39,8 @@ endif ()
 
 # Start the top level project.
 project(
-	# The name of the project cannot be changed since it it used in variable names.
-	QtADS VERSION "${SF_GIT_TAG_VERSION}" DESCRIPTION "Advanced Docking System for Qt"
-	HOMEPAGE_URL "https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System" LANGUAGES CXX
+	qt-ads VERSION "${SF_GIT_TAG_VERSION}" DESCRIPTION "Advanced Docking System for Qt"
+	HOMEPAGE_URL "https://github.com/scanframe-org/qt-ads" LANGUAGES CXX
 )
 
 # Check if the file exists and include it again.

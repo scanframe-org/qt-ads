@@ -77,3 +77,11 @@ Package the MSVC **debug** version.
 ```shell
 ./build.py docker -b tmp -- w -- -bp msvc-release
 ```
+
+Package the Qt dependent library.
+
+```shell
+./build.py docker -b tmp -- --make --package gnu-debug -- -DSF_PACKAGE_QT=0
+```
+
+> Ignore the failing `AppImage` generator.
