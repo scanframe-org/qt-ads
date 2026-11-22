@@ -1,8 +1,12 @@
-![ukraine](doc/ukraine.jpg)
-
 ![logo](doc/ads_logo.svg)
 
-------------------
+---
+
+### Prepare Build Environment for Docker and 5 Toolchains
+
+Read the [PREPARE.md](PREPARE.md) for more information.
+
+---
 
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/githubuser0xFFFF/Qt-Advanced-Docking-System)](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/latest)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](gnu-lgpl-v2.1.md)
